@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="splash" class="splash-screen">
+  <img style="border-radius: 54px;" src="{{ url_for('static', filename='/images/letraA.png') }}" alt="Ambiqua Logo" class="logo-splash">
+</div>
+
+<div class="auth-container">
+  <h2>Inicia Sesión</h2>
+  <form method="POST" action="{{ url_for('login') }}">
+    <input type="text" name="username" placeholder="Usuario" required>
+    <input type="password" name="password" placeholder="Contraseña" required>
+    <button type="submit">Ingresar</button>
+  </form>
+  <p class="p-auth">¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a></p>
+</div>
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <script>
+            {% for category, message in messages %}
+                Swal.fire({
+                    title: "{{ category.title() }}!",
+                    text: "{{ message }}",
+                    icon: "{{ category }}",
+                    confirmButtonText: 'Está bien.',
+                    confirmButtonColor: '#00512D'
+                });
+            {% endfor %}
+        </script>
+    {% endif %}
+{% endwith %}
+
+{% endblock %}

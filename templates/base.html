@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambiqua - Riego Inteligente</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <link href="https://db.onlinewebfonts.com/c/14936bb7a4b6575fd2eee80a3ab52cc2?family=Feather+Bold" rel="stylesheet">
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+
+  <!-- SweetAlert CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+  <!-- SweetAlert JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+  <header>
+    {% if current_user.is_authenticated %}
+    <div class="nav-container">
+      <nav class="navbar">
+        <div class="nav-left">
+          <img src="{{ url_for('static', filename='images/letraA.png') }}" alt="Logo" class="logo">
+          <input type="search" name="search" autocomplete="off" placeholder="Busca tus plantas..." class="search-input">
+          <img src="{{ url_for('static', filename='images/lupa-de-busqueda.png') }}" alt="icon" class="icon">
+        </div>
+        <ul class="nav-menu">
+          <li><a href="{{ url_for('dashboard') }}">Inicio</a></li>
+          <li><a href="{{ url_for('cultivos') }}">Mis Cultivos</a></li>
+          <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+  </header>
+
+
+<main>
+    <div class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="display: none;">  <!-- Ocultar el contenedor de mensajes -->
+            <div class="alert alert-dismissible fade show" role="alert">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% endwith %}
+      
+      <!-- Solo un bloque content aquí -->
+      {% block content %}
+      {% endblock %}
+    </div>
+  </main>
+
+
+  <script>
+  // Registro correcto del Service Worker (elimina el duplicado)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register("{{ url_for('static', filename='js/service-worker.js') }}")
+      .then(() => console.log('Service Worker registrado'))
+      .catch(err => console.log('Error al registrar SW:', err));
+  }
+
+  // Oculta el splash screen
+  window.onload = function() {
+    var splash = document.getElementById('splash');
+    if(splash) splash.style.display = 'none';
+  };
+</script>
+
+</body>
+</html>
+

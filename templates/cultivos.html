@@ -1,0 +1,250 @@
+<!-- cultivos.html actualizado -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="cultivos-main">
+  <div class="cultivos-header">
+    <h1 class="cultivos-title">
+      <span class="title-icon">🌱</span>
+      <span>Mis Cultivos</span>
+    </h1>
+    <button class="btn-add" id="addPlantBtn" data-tooltip="Agregar nuevo cultivo">
+      <span class="btn-icon">+</span>
+      <span class="btn-text">Nuevo Cultivo</span>
+    </button>
+  </div>
+  
+  <div class="plants-grid" id="plant-list">
+    {% for plant in user.plants %}
+    <div class="plant-card" data-plant-id="{{ plant.id }}">
+      <div class="plant-header">
+        <h3 class="plant-name">{{ plant.name }}</h3>
+        <span class="plant-status" data-status="active">
+          <span class="status-icon">🌿</span>
+          <span class="status-text">Activo</span>
+        </span>
+      </div>
+      
+      <div class="plant-metrics">
+        <div class="metric-item" data-tooltip="Humedad necesaria para un crecimiento óptimo">
+          <div class="metric-icon">💧</div>
+          <div class="metric-info">
+            <div class="metric-value">{{ plant.humidity_required }}%</div>
+            <div class="metric-label">Humedad Requerida</div>
+          </div>
+        </div>
+        
+        <div class="metric-item" data-tooltip="Temperatura actual del ambiente">
+          <div class="metric-icon">🌡️</div>
+          <div class="metric-info">
+            <div class="metric-value">24°C</div>
+            <div class="metric-label">Temperatura Actual</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="plant-actions">
+        <button class="action-btn edit-btn" data-tooltip="Editar cultivo">
+          <span class="btn-icon">✏️</span>
+          <span class="btn-text">Editar</span>
+        </button>
+        <button class="action-btn delete-btn" data-tooltip="Eliminar cultivo">
+          <span class="btn-icon">🗑️</span>
+          <span class="btn-text">Eliminar</span>
+        </button>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <img src="{{ url_for('static', filename='images/empty.svg') }}" alt="Sin cultivos" class="empty-image">
+      <p class="empty-text">Aún no tienes cultivos registrados</p>
+      <button class="btn-add" onclick="document.getElementById('addPlantBtn').click()">
+        <span class="btn-icon">+</span>
+        <span class="btn-text">Agregar mi primer cultivo</span>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Modal Moderno -->
+<div id="addPlantModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <svg class="modal-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span>Nuevo Cultivo</span>
+      </h2>
+      <button class="close" aria-label="Cerrar modal">❌</button>
+    </div>
+    
+    <form id="plantForm" class="modal-form">
+      <div class="form-grid">
+        <div class="input-group">
+          <label class="input-label" for="plantName">Nombre del Cultivo</label>
+          <input 
+            type="text" 
+            id="plantName" 
+            name="name" 
+            class="form-input" 
+            placeholder="Ej: Huerta de Tomates" 
+            required
+          >
+        </div>
+        
+        <div class="input-group">
+          <label class="input-label" for="plantType">Tipo de Planta</label>
+          <div class="select-wrapper">
+            <select id="plantType" name="type" class="form-input" required>
+              <option value="" disabled selected>Selecciona una planta</option>
+              <option value="tomato">Tomate 🍅</option>
+              <option value="lettuce">Lechuga 🥬</option>
+              <option value="pepper">Pimiento 🌶️</option>
+              <option value="carrot">Zanahoria 🥕</option>
+              <option value="potato">Papa 🥔</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="humidity">Humedad Requerida</label>
+          <div class="number-input">
+            <button type="button" class="number-btn" data-action="decrement">-</button>
+            <input 
+              type="number" 
+              id="humidity" 
+              name="humidity_required" 
+              class="form-input" 
+              value="65" 
+              min="30" 
+              max="90" 
+              step="5" 
+              required
+            >
+            <button type="button" class="number-btn" data-action="increment">+</button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="wateringFrequency">Frecuencia de Riego</label>
+          <div class="select-wrapper">
+            <select id="wateringFrequency" name="watering_frequency" class="form-input" required>
+              <option value="" disabled selected>Selecciona frecuencia</option>
+              <option value="daily">Diario 🌞</option>
+              <option value="2days">Cada 2 días</option>
+              <option value="weekly">Semanal 📅</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        <span class="btn-text">Crear Cultivo</span>
+        <div class="btn-loader" style="display: none;"></div>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+// Gestión del Modal
+const modal = document.getElementById('addPlantModal');
+const openModal = () => {
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => {
+    modal.classList.add('active');
+  });
+};
+
+const closeModal = () => {
+  modal.classList.remove('active');
+  setTimeout(() => {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }, 300);
+};
+
+// Event Listeners
+document.getElementById('addPlantBtn').addEventListener('click', openModal);
+document.querySelector('.close').addEventListener('click', closeModal);
+modal.addEventListener('click', (e) => e.target === modal && closeModal());
+
+// Control numérico mejorado
+document.querySelectorAll('.number-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = btn.parentElement.querySelector('input');
+    const step = parseInt(input.step) || 1;
+    const newValue = btn.dataset.action === 'increment' 
+      ? Math.min(parseInt(input.value) + step, parseInt(input.max))
+      : Math.max(parseInt(input.value) - step, parseInt(input.min));
+    
+    input.value = newValue;
+    input.dispatchEvent(new Event('input'));
+  });
+});
+
+// Envío de formulario con validación y feedback
+document.getElementById('plantForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const loader = submitBtn.querySelector('.btn-loader');
+  const btnText = submitBtn.querySelector('.btn-text');
+  
+  // Deshabilitar botón y mostrar loader
+  submitBtn.disabled = true;
+  loader.style.display = 'block';
+  btnText.textContent = 'Procesando...';
+  
+  try {
+    const formData = new FormData(form);
+    const response = await fetch('/api/plants', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(Object.fromEntries(formData))
+    });
+    
+    if (!response.ok) {
+      throw new Error('Error en el servidor');
+    }
+    
+    // Éxito
+    closeModal();
+    location.reload();
+    
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al guardar el cultivo');
+    
+    // Restaurar botón
+    submitBtn.disabled = false;
+    loader.style.display = 'none';
+    btnText.textContent = 'Crear Cultivo';
+  }
+});
+
+// Animaciones de entrada para las tarjetas
+const observerOptions = {
+  threshold: 0.1,
+  rootMargin: '50px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, observerOptions);
+
+document.querySelectorAll('.plant-card').forEach(card => {
+  observer.observe(card);
+});
+</script>
+{% endblock %}

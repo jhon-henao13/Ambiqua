@@ -1,0 +1,21 @@
+{
+    "name": "Ambiqua",
+    "short_name": "Ambiqua",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "#F8F9FA",
+    "theme_color": "#34C759",
+    "icons": [
+      {
+        "src": "icons/ambiqua-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "icons/ambiqua-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  

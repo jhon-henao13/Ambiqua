@@ -1,0 +1,1095 @@
+/* Reset básico y transición global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: 0.3s ease;
+  font-family: "Feather Bold";
+}
+
+/* Fuentes y fondo */
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(90deg, rgb(1, 43, 26) 0%, rgb(17, 65, 51) 35%, rgb(2, 61, 32) 100%);
+  color: #fff;
+}
+
+
+:root {
+  --primary-color: #4caf50; /* Verde Duolingo */
+  --secondary-color: #81c784; /* Verde claro */
+  --background: #f8f9fa; /* Fondo claro para tarjetas */
+  --text-dark: #2c3e50; /* Texto oscuro */
+  --text-light: #95a5a6; /* Texto claro */
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Splash screen */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #012B1C;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.splash-auth {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0 0 0;
+}
+
+label {
+  font-size: 18px;
+}
+
+.logo-splash {
+  width: 150px;
+  border-radius: 54px;
+}
+
+/* Navegación */
+.nav-container {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 13px 30px;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+}
+
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 10px 50px;
+
+}
+
+.nav-left .logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 20px;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.icon {
+  width: 43px;
+  height: 43px;
+  margin-left: 6px;
+}
+
+.nav-menu {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+.nav-menu li a {
+  text-decoration: none;
+  font-weight: 700;
+  color: #35ca59;
+}
+
+.nav-menu li a:hover {
+  color: #269c43;
+}
+
+
+p {
+  font-size: 17px;
+  padding: 0 0 0 7px;
+}
+
+.p-auth {
+  padding-top: 10px;
+}
+
+p a {
+  text-decoration: none;
+  color: #35ca59;
+  padding: 0 0 0 7px;
+}
+
+p a:hover {
+  color: #269c43;
+}
+
+h2 {
+  font-size: 24px;
+}
+
+h3 {
+  font-size: 25px;
+}
+
+#plant-list {
+  padding: 5px 27px;
+}
+
+
+
+
+@media (max-width: 600px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .nav-menu {
+    flex-direction: column;
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+/* Contenedores de autenticación */
+.auth-container {
+  width: 90%;
+  max-width: 800px;
+  margin: 40px auto;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 50px 70px 100px 70px;
+  border-radius: 30px;
+  text-align: center;
+}
+
+.auth-container h2 {
+  margin-bottom: 20px;
+  font-size: 36px;
+}
+
+.auth-container input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 20px;
+  border: none;
+  font-size: 1rem;
+}
+
+.auth-container button {
+  width: 50%;
+  margin: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  background-color: #34C759;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.auth-container button:hover {
+  background-color: #25953f;
+}
+
+.flash-messages {
+  list-style: none;
+  margin-top: 15px;
+}
+
+.flash-messages li {
+  padding: 8px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+}
+
+/* Panel de control y tarjetas */
+#dashboard {
+  padding: 10px 20px;
+  width: 100%;
+  margin: auto;
+}
+
+.user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.btn-add {
+  background-color: #31bb53;
+  color: #fff;
+  padding: 15px 21px;
+  text-decoration: none;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: 0px 2px 10px #000000;
+}
+
+.info-card {
+  background: #e0faed; /* Cambiando el color de fondo a verde claro */
+  color: #2f4b21; /* Texto en verde oscuro */
+  padding: 10px 20px;
+  border-radius: 19px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+button {
+  background-color: #31bb53;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 54px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0px 2px 10px #000000;
+}
+
+.boton-valvula {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+#toggleValveBtn {
+  width: 50%;
+  padding: 15px;
+  font-size: 15px;
+  font-weight: bolder;
+  border-radius: 17px;
+  margin-bottom: 25px;
+}
+
+#saveConfigBtn {
+  margin: 0 0 0 20px;
+}
+
+.btn-add:hover {
+  background-color: #1b953a;
+}
+
+button:hover {
+  background-color: #1b953a;
+}
+
+
+.config-system {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.config-system input {
+  padding: 5px 10px;
+  border-radius: 11px;
+  margin: 12px;
+}
+
+.cnt-info-card {
+  display: flex;
+  justify-content: center;
+}
+
+/*.modal-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px
+}
+
+.modal-content input {
+  border-radius: 40px;
+  padding: 7px;
+  font-weight: bolder;
+}*/
+
+.form-control {
+  border-radius: 30px;
+  padding: 10px 20px;
+  margin: 4px;
+}
+
+/* ============== CULTIVOS MAIN ============== */
+.cultivos-main {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.cultivos-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.cultivos-title {
+  color: #fff;
+  font-size: 2.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.cultivos-title::after {
+  content: '';
+  width: 60px;
+  height: 3px;
+  background: var(--duo-green);
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ============== LISTA DE CULTIVOS ============== */
+.plants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  gap: 2rem;
+  padding: 1rem;
+}
+
+.plant-card {
+  background: #184e2b;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.plant-card:hover {
+  transform: translateY(-5px);
+}
+
+.plant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.plant-name {
+  color: var(--duo-bg-dark);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.plant-status {
+  background: rgb(26 255 23 / 26%);
+  color: var(--duo-green);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0 20px
+}
+
+.plant-metrics {
+  display: grid;
+  gap: 1rem;
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.metric-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(88,204,2,0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.metric-info {
+  flex: 1;
+}
+
+.metric-value {
+  color: var(--duo-bg-dark);
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.metric-label {
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.plant-actions {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.edit-btn {
+  background: rgba(28,176,246,0.1);
+  color: #1CB0F6;
+}
+
+.delete-btn {
+  background: rgba(231,76,60,0.1);
+  color: #E74C3C;
+}
+
+/* ============== MODAL MODERNO ============== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  animation: modalFadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+  margin: 30px 100px;
+}
+
+.modal-header {
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f0f4f8;
+  margin-bottom: 2rem;
+}
+
+.modal-title {
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  justify-content: space-between;
+}
+
+/* ============== FORMULARIO AVANZADO ============== */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 1.2rem;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 0.8rem;
+  color: #2d3748;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding-left: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #f8fafc;
+}
+
+.form-input:focus {
+  border-color: #48bb78;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(72,187,120,0.15);
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: '⌄';
+  position: absolute;
+  right: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.4rem;
+  color: #718096;
+  pointer-events: none;
+}
+
+/* ============== INPUT NUMÉRICO MEJORADO ============== */
+.number-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 0.5rem;
+}
+
+.number-btn {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: none;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: #48bb78;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.number-btn:hover {
+  background: #48bb78;
+  color: white;
+  border-color: #48bb78;
+}
+
+/* ============== BOTÓN DE ENVÍO PREMIUM ============== */
+.submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #58cc02 0%, #4ab001 100%);
+  color: white;
+  padding: 1.3rem;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, 
+    transparent 25%, 
+    rgba(255,255,255,0.1) 50%, 
+    transparent 75%);
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  to {
+    transform: translate(50%, 50%);
+  }
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(88,204,2,0.3);
+}
+
+/* ============== RESPONSIVE DESIGN ============== */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-content {
+    padding: 1.8rem;
+    width: 90%;
+  }
+  
+  .number-input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    border-radius: 20px 20px 0 0;
+    margin: 0;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+  }
+  
+  .form-input {
+    padding: 0.9rem 1.2rem;
+  }
+  
+  .submit-btn {
+    padding: 1.1rem;
+  }
+}
+
+
+/* ============== ANIMACIONES GLOBALES ============== */
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* ============== MODAL ANIMADO ============== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  animation: modalFadeIn 0.4s ease-out;
+}
+
+.modal-content {
+  animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center bottom;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(30px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============== BOTÓN FLOTANTE ANIMADO ============== */
+.btn-add {
+  animation: pulse 2s infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-add::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, 
+    transparent 20%, 
+    rgba(255,255,255,0.2) 50%, 
+    transparent 80%);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  to {
+    transform: translate(50%, 50%) rotate(360deg);
+  }
+}
+
+/* ============== EFECTOS DE TARJETA ============== */
+.plant-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: pointer;
+  position: relative;
+}
+
+.plant-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, 
+    rgba(88,204,2,0.1) 0%, 
+    rgba(88,204,2,0.05) 100%);
+  z-index: -1;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.plant-card:hover::before {
+  opacity: 1;
+}
+
+/* ============== EFECTOS DE INPUT ============== */
+.form-input {
+  transition: all 0.3s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus {
+  animation: inputFocus 0.4s ease-out;
+}
+
+@keyframes inputFocus {
+  from {
+    box-shadow: 0 0 0 0 rgba(72,187,120,0.3);
+  }
+  to {
+    box-shadow: 0 0 0 4px rgba(72,187,120,0.15);
+  }
+}
+
+/* ============== BOTONES INTERACTIVOS ============== */
+.action-btn {
+  transition: all 0.3s ease, transform 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.action-btn:hover::after {
+  width: 150px;
+  height: 150px;
+}
+
+/* ============== LOADING ANIMADO ============== */
+.btn-loader {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============== CORRECCIONES Y MEJORAS ============== */
+/* Efecto hover solo en elementos interactivos */
+.btn-add:hover,
+.action-btn:hover,
+.number-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Animación modal corregida */
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Mejora de z-index */
+.modal {
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Ajuste responsive de tarjetas */
+.plants-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+/* Corrección de color de texto */
+.metric-label {
+  color: #e0e0e0;
+}
+
+/* Mejora de botón cerrar */
+.close {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.close:hover {
+  transform: rotate(90deg);
+}
+
+/* Optimización de animaciones */
+.submit-btn::after {
+  animation: shine 2s infinite paused;
+}
+
+.submit-btn:hover::after {
+  animation-play-state: running;
+}
+
+
+/* ============== LISTA DE CULTIVOS (MOBILE FIRST) ============== */
+.plants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.plant-card {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(88,204,2,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.plant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(88,204,2,0.1);
+}
+
+.plant-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--duo-green);
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+/* ============== COMPONENTES INTERACTIVOS ============== */
+.btn-add {
+  background: var(--duo-green);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: all 0.3s ease;
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 100;
+  box-shadow: 0 8px 20px rgba(88,204,2,0.3);
+}
+
+.btn-add:hover {
+  transform: scale(1.05) translateY(-2px);
+  background: var(--duo-dark-green);
+}
+
+.action-btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.edit-btn {
+  background: rgba(28,176,246,0.15);
+  color: #1CB0F6;
+}
+
+.delete-btn {
+  background: rgba(231,76,60,0.15);
+  color: #E74C3C;
+}
+
+/* ============== MODAL MODERNO ============== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background: var(--modal-bg);
+  width: 95%;
+  max-width: 500px;
+  border-radius: 24px;
+  padding: 2rem;
+  position: relative;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+  transform: scale(0.95);
+  animation: modalScaleIn 0.3s ease-out forwards;
+}
+
+@keyframes modalScaleIn {
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ============== FORMULARIO DINÁMICO ============== */
+.form-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.input-group {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  border-color: var(--duo-green);
+  box-shadow: 0 0 0 3px rgba(88,204,2,0.2);
+}
+
+.number-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.number-btn {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.number-btn:hover {
+  background: var(--duo-green);
+  border-color: var(--duo-green);
+  color: white;
+}
+
+/* ============== RESPONSIVE DESIGN ============== */
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 1.5rem;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .btn-add {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 1rem;
+  }
+  
+  .btn-add span:last-child {
+    display: none;
+  }
+}
