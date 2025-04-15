@@ -1,9 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from itsdangerous import URLSafeTimedSerializer as Serializer
+from flask_bcrypt import Bcrypt
+
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
@@ -48,12 +53,36 @@ def load_user(user_id):
 
 # ---------------------- Rutas de Autenticación y demás ----------------------
 
+# Configuracion de SendGrid
+SENDGRID_API_KEY = '(api)'
+
+# Serializador para crear y verificar tokens
+serializer = Serializer(app.secret_key, salt='password-reset-salt')
+
+# Funcion para enviar correos
+def enviar_email(destinatario, asunto, cuerpo):
+    mensaje = Mail(
+        from_email='estiguar.dev.emails@gmail.com', # Cambiar por el correo nuevo exclusivo para enviar emails de recuperacion
+        to_emails=destinatario,
+        subject=asunto,
+        html_content=cuerpo
+    )
+    try:
+        sg = SendGridAPIClient(SENDGRID_API_KEY) # Usar clave API de SendGrid directamente
+        response = sg.send(mensaje)
+        print(f"Correo enviado con éxito! Status code: {response.status.code}")
+    except Exception as e:
+        print(f'Error al enviar el correo: {e}')
+
+
+
 # Redirigir la raiz a login o dashboard según autenticación
 @app.route('/')
 def index():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard', user=current_user, esp32_status="Conectado", valve_status="Cerrada", humidity=65, temperature=22))
     return redirect(url_for('login'))
+
 
 # Ruta para el login (mostrar formulario y procesar inicio de sesión)
 @app.route('/login', methods=['GET', 'POST'])
@@ -71,6 +100,7 @@ def login():
             flash('Credenciales incorrectas. Intenta nuevamente.', '❌')
             return redirect(url_for('login'))
     return render_template('login.html')
+
 
 # Ruta para el registro
 @app.route('/register', methods=['GET', 'POST'])
@@ -90,6 +120,7 @@ def register():
             return redirect(url_for('register'))
 
         new_user = User(username=username, email=email, password=generate_password_hash(password))
+
         db.session.add(new_user)
         db.session.commit()
         flash('Registro exitoso. Inicia sesión.', 'success')
@@ -108,6 +139,52 @@ def dashboard():
 @login_required
 def cultivos():
     return render_template('cultivos.html', user=current_user)
+
+
+# Ruta para ingresar el correo para recuperar contraseña
+@app.route('/recuperar_contrasena', methods=['GET', 'POST'])
+def recuperar_contrasena():
+    if request.method == 'POST':
+        email = request.form['email']
+        usuario = collection.find_one({'email': email})
+
+        if usuario:
+            token = serializer.dumps(email, salt='password-reset-salt')
+            enlace = url_for('restablecer_contrasena', token=token, _external=True)
+            asunto = 'RECUPERACIÓN DE CONTRASEÑA EN AMBIQUA 🌱'
+            cuerpo = f"""
+            <p>Hola!, hemos recibido una solicitud para cambiar tu contraseña.</p>
+            <p>Si no has solicitado nada, entonces puedes ignorar este mensaje.</p>
+            <p>Para cambiar tu contraseña, haz clic en el siguiente link:</p>
+            <a href="{enlace}">Cambiar contraseña</a>
+            """
+
+            enviar_email(email, asunto, cuerpo)
+            flash('Correo enviado para que cambies tu contraseña.', 'success')
+        else:
+            flash('El correo no existe en nuestro sistema.', 'error')
+
+    return render_template('recuperar_contrasena.html')
+
+
+# Ruta para cambiar o restablecer la contraseña
+@app.route('/restablecer_contrasena/<token>', methods=['GET', 'POST'])
+def restablecer_contrasena(token):
+    try:
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)
+    except:
+        flash('El link para cambiar tu contraseña ha vencido o es erróneo.', 'error')
+        return redirect(url_for('recuperar_contrasena'))
+
+    if request.method == 'POST':
+        nueva_contrasena = request.form['nueva_contrasena']
+        hashed_password = bcrypt.generate_password_hash(nueva_contrasena).decode('utf-8')
+        collection.update_one({'email': email}, {'$set': {'contrasena': hashed_password}})
+        flash('Cambiastes tu contraseña con éxito.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('restablecer_contrasena.html')
+
 
 
 # Ruta de logout

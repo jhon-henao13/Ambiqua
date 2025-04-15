@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="splash" class="splash-screen">
+  <img style="border-radius: 54px;" src="{{ url_for('static', filename='/images/letraA.png') }}" alt="Ambiqua Logo" class="logo-splash">
+</div>
+
+<div class="auth-container">
+  <h2>Cambia tu contraseña 🔐</h2>
+  <form method="POST" action="{{ url_for('recuperar_contrasena') }}">
+
+    <!-- Mostrar mensaje de contraseña restablecida -->
+
+
+    <div class="form-group password-group">
+      <i class="fas fa-lock icon"></i>
+      <input type="password" name="nueva_contrasena" placeholder="Tu Nueva Contraseña" id="nueva_contrasena" required>
+      <i class="toggle-password" id="togglePassword"></i>
+    </div>
+
+
+    <button type="submit">CAMBIAR</button>
+
+    <!-- Enlace para recuperacion de contraseña -->
+
+  </form>
+    <p class="p-auth"><a href="{{ url_for('login') }}">Volver al inicio de sesión </a></p>
+</div>
+
+<script>
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('nueva_contrasena');
+
+    togglePassword.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+</script>
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <script>
+            {% for category, message in messages %}
+                Swal.fire({
+                    title: "{{ category.title() }}!",
+                    text: "{{ message }}",
+                    icon: "{{ category }}",
+                    confirmButtonText: 'Está bien.',
+                    confirmButtonColor: '#00512D'
+                });
+            {% endfor %}
+        </script>
+    {% endif %}
+{% endwith %}
+
+{% endblock %}

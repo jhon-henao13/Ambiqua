@@ -8,9 +8,26 @@
 <div class="auth-container">
   <h2>Inicia Sesión</h2>
   <form method="POST" action="{{ url_for('login') }}">
-    <input type="text" name="username" placeholder="Usuario" required>
-    <input type="password" name="password" placeholder="Contraseña" required>
-    <button type="submit">Ingresar</button>
+
+    <!-- Mostrar mensaje de contraseña restablecida -->
+
+
+    <div class="form-group">
+      <i class="fas fa-user icon"></i>
+      <input type="text" name="username" placeholder=" Usuario" required>
+    </div>
+
+    <div class="form-group">
+      <i class="fas fa-lock icon"></i>
+      <input type="password" name="password" id="password" placeholder="Contraseña" required>
+      <i class="toggle-password" id="togglePassword"></i>
+    </div>
+
+    <button type="submit">INGRESAR</button>
+
+    <!-- Enlace para recuperacion de contraseña -->
+    <p class="forgot-password"><a href="/recuperar_contrasena">¿No te acuerdas de tu contraseña?</a></p>
+
   </form>
   <p class="p-auth">¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a></p>
 </div>

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="splash" class="splash-screen">
+  <img style="border-radius: 54px;" src="{{ url_for('static', filename='/images/letraA.png') }}" alt="Ambiqua Logo" class="logo-splash">
+</div>
+
+<div class="auth-container">
+  <h2>Recupera tu cuenta 🔐</h2>
+  <form method="POST" action="{{ url_for('recuperar_contrasena') }}">
+
+    <!-- Mostrar mensaje de contraseña restablecida -->
+
+
+    <div class="form-group">
+      <i class="fas fa-envelope icon"></i>
+      <input type="email" name="email" placeholder="Correo Electrónico" required>
+    </div>
+
+
+    <button type="submit">ENVIAR</button>
+
+    <!-- Enlace para recuperacion de contraseña -->
+
+  </form>
+<!--   <p class="p-auth">¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a></p> -->
+</div>
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <script>
+            {% for category, message in messages %}
+                Swal.fire({
+                    title: "{{ category.title() }}!",
+                    text: "{{ message }}",
+                    icon: "{{ category }}",
+                    confirmButtonText: 'Está bien.',
+                    confirmButtonColor: '#00512D'
+                });
+            {% endfor %}
+        </script>
+    {% endif %}
+{% endwith %}
+
+{% endblock %}

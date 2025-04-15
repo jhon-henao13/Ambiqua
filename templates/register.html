@@ -4,11 +4,31 @@
 <div class="auth-container">
   <h2>Regístrate</h2>
   <form method="POST" action="{{ url_for('register') }}">
-    <input type="text" name="username" placeholder="Usuario" required>
-    <input type="email" name="email" placeholder="Correo Electrónico" required>
-    <input type="password" name="password" placeholder="Contraseña" required>
-    <input type="password" name="confirm_password" placeholder="Confirmar Contraseña" required>
-    <button type="submit">Registrar</button>
+
+    <div class="form-group">
+      <i class="fas fa-user icon"></i>
+      <input type="text" name="username" placeholder=" Usuario" required>
+    </div>
+
+    <div class="form-group">
+      <i class="fas fa-envelope icon"></i>
+      <input type="email" name="email" placeholder="Correo Electrónico" required>
+    </div>
+
+    <div class="form-group">
+      <i class="fas fa-lock icon"></i>
+      <input type="password" name="password" id="password" placeholder="Contraseña" required>
+      <i class="toggle-password" id="togglePassword"></i>
+    </div>
+
+    <div class="form-group">
+      <i class="fas fa-lock icon"></i>
+      <input type="password" name="confirm_password" id="password" placeholder="Confirmar Contraseña" required>
+      <i class="toggle-password" id="togglePassword"></i>
+    </div>
+
+    <button type="submit">REGISTRAR</button>
+
   </form>
   <p class="p-auth">¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia Sesión</a></p>
   {% with messages = get_flashed_messages(with_categories=true) %}

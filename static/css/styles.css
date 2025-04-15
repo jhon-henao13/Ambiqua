@@ -12,7 +12,92 @@ body {
   font-family: 'Montserrat', sans-serif;
   background: linear-gradient(90deg, rgb(1, 43, 26) 0%, rgb(17, 65, 51) 35%, rgb(2, 61, 32) 100%);
   color: #fff;
+  -webkit-font-smoothing: antialiased;
 }
+
+.form-group {
+  position: relative;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.form-group .icon {
+  position: absolute;
+  left: 4px;
+  top: 65%;
+  transform: translateY(-50%);
+  color: #000;
+  font-size: 20px;
+}
+
+
+.form-group input {
+    width: 100%;
+    padding: 14px 14px 14px 45px;
+    border: 2px solid rgba(0, 0, 0, 0.3); /* Contorno tenue */
+    border-radius: 10px;
+    color: #000; /* Texto negro */
+    outline: none;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    background-color: rgb(194 255 225); /* Fondo más oscuro al enfocar */
+    border-color: #000; /* Contorno negro al enfocar */
+}
+
+.form-group input::placeholder {
+    color: #666; /* Placeholder en gris oscuro */
+}
+
+
+/* Password Toggle Icon */
+.toggle-password {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    background: transparent;
+    border: 2px solid #000; /* Contorno negro */
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.toggle-password::before {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 6px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid #000; /* Icono negro */
+    background-color: transparent;
+}
+
+.toggle-password::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 2px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: #000; /* Líneas en negro */
+    opacity: 1;
+}
+
+.toggle-password.active::after {
+    opacity: 0;
+}
+
 
 
 :root {
@@ -186,7 +271,7 @@ h3 {
 
 .auth-container input {
   width: 100%;
-  padding: 10px;
+  padding: 16px 50px;
   margin: 8px 0;
   border-radius: 20px;
   border: none;
@@ -383,10 +468,6 @@ button:hover {
   transition: transform 0.3s ease;
 }
 
-.plant-card:hover {
-  transform: translateY(-5px);
-}
-
 .plant-header {
   display: flex;
   justify-content: space-between;
@@ -479,6 +560,7 @@ button:hover {
 }
 
 /* ============== MODAL MODERNO ============== */
+/* Estilos del Modal */
 .modal {
   display: none;
   position: fixed;
@@ -486,204 +568,120 @@ button:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(8px);
-  z-index: 9999;
-  animation: modalFadeIn 0.3s ease;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/*MODAL*/
+/* Estilos del Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .modal-content {
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 2.5rem;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-  border: 1px solid rgba(0,0,0,0.1);
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
   position: relative;
-  overflow: hidden;
-  margin: 30px 100px;
+  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.modal-header {
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid #f0f4f8;
+.modal-content h2 {
+  text-align: center;
+  color: #2c3e50;
   margin-bottom: 2rem;
-}
-
-.modal-title {
-  color: #fff;
   font-size: 1.8rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  justify-content: space-between;
 }
 
-/* ============== FORMULARIO AVANZADO ============== */
-.form-grid {
+/* Formulario Grid */
+.modal-content form {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
-  align-items: start;
 }
 
-.input-group {
-  position: relative;
-  margin-bottom: 1.2rem;
-}
-
-.input-label {
+.modal-content label {
   display: block;
-  margin-bottom: 0.8rem;
-  color: #2d3748;
+  margin-bottom: 0.5rem;
+  color: #34495e;
   font-weight: 500;
-  font-size: 0.95rem;
-  padding-left: 0.5rem;
 }
 
-.form-input {
+.modal-content input,
+.modal-content select {
   width: 100%;
-  padding: 1rem 1.5rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 14px;
+  padding: 0.8rem;
+  border: 2px solid #ecf0f1;
+  border-radius: 8px;
   font-size: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #f8fafc;
+  transition: border-color 0.3s ease;
 }
 
-.form-input:focus {
-  border-color: #48bb78;
-  background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(72,187,120,0.15);
+.modal-content input:focus,
+.modal-content select:focus {
+  border-color: #2ecc71;
+  outline: none;
 }
 
-.select-wrapper {
-  position: relative;
-}
-
-.select-wrapper::after {
-  content: '⌄';
-  position: absolute;
-  right: 1.2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.4rem;
-  color: #718096;
-  pointer-events: none;
-}
-
-/* ============== INPUT NUMÉRICO MEJORADO ============== */
-.number-input {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #f8fafc;
-  border-radius: 14px;
-  padding: 0.5rem;
-}
-
-.number-btn {
-  width: 40px;
-  height: 40px;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  background: none;
-  cursor: pointer;
-  font-size: 1.4rem;
-  color: #48bb78;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.number-btn:hover {
-  background: #48bb78;
+.modal-content button[type="submit"] {
+  grid-column: 1 / -1;
+  background: #2ecc71;
   color: white;
-  border-color: #48bb78;
-}
-
-/* ============== BOTÓN DE ENVÍO PREMIUM ============== */
-.submit-btn {
-  width: 100%;
-  background: linear-gradient(135deg, #58cc02 0%, #4ab001 100%);
-  color: white;
-  padding: 1.3rem;
   border: none;
-  border-radius: 14px;
+  padding: 1rem;
+  border-radius: 8px;
   font-size: 1.1rem;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 1.5rem;
-  position: relative;
-  overflow: hidden;
+  transition: background 0.3s ease;
 }
 
-.submit-btn::after {
-  content: '';
+.modal-content button[type="submit"]:hover {
+  background: #27ae60;
+}
+
+
+
+
+.close {
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, 
-    transparent 25%, 
-    rgba(255,255,255,0.1) 50%, 
-    transparent 75%);
-  animation: shine 2s infinite;
-}
-
-@keyframes shine {
-  to {
-    transform: translate(50%, 50%);
-  }
-}
-
-.submit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(88,204,2,0.3);
-}
-
-/* ============== RESPONSIVE DESIGN ============== */
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .modal-content {
-    padding: 1.8rem;
-    width: 90%;
-  }
-  
-  .number-input {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .modal-content {
-    border-radius: 20px 20px 0 0;
-    margin: 0;
-    width: 100%;
-    position: fixed;
-    bottom: 0;
-  }
-  
-  .form-input {
-    padding: 0.9rem 1.2rem;
-  }
-  
-  .submit-btn {
-    padding: 1.1rem;
-  }
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 2rem;
+  color: #7f8c8d;
+  cursor: pointer;
+  transition: color 0.3s ease;
 }
 
 
-/* ============== ANIMACIONES GLOBALES ============== */
-@keyframes slideInUp {
+.close:hover {
+  color: #e74c3c;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
   from {
-    transform: translateY(100%);
+    transform: translateY(50px);
     opacity: 0;
   }
   to {
@@ -692,82 +690,14 @@ button:hover {
   }
 }
 
-@keyframes scaleIn {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
   }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-/* ============== MODAL ANIMADO ============== */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(10px);
-  z-index: 9999;
-  animation: modalFadeIn 0.4s ease-out;
-}
-
-.modal-content {
-  animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transform-origin: center bottom;
-}
-
-@keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes modalSlideUp {
-  from {
-    transform: translateY(30px) scale(0.98);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-}
-
-/* ============== BOTÓN FLOTANTE ANIMADO ============== */
-.btn-add {
-  animation: pulse 2s infinite;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-add::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, 
-    transparent 20%, 
-    rgba(255,255,255,0.2) 50%, 
-    transparent 80%);
-  animation: shine 3s infinite;
-}
-
-@keyframes shine {
-  to {
-    transform: translate(50%, 50%) rotate(360deg);
+  
+  .modal-content form {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -923,7 +853,6 @@ button:hover {
 }
 
 .plant-card {
-  background: var(--card-bg);
   border-radius: 20px;
   padding: 1.5rem;
   backdrop-filter: blur(10px);
@@ -952,7 +881,6 @@ button:hover {
 
 /* ============== COMPONENTES INTERACTIVOS ============== */
 .btn-add {
-  background: var(--duo-green);
   color: white;
   padding: 1rem 2rem;
   border-radius: 50px;
@@ -970,7 +898,34 @@ button:hover {
 
 .btn-add:hover {
   transform: scale(1.05) translateY(-2px);
-  background: var(--duo-dark-green);
+  background: #269c43;
+}
+
+
+/* ============== BOTÓN FLOTANTE ANIMADO ============== */
+.btn-add {
+  animation: pulse 2s infinite;
+  overflow: hidden;
+}
+
+.btn-add::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, 
+    transparent 20%, 
+    rgba(255,255,255,0.2) 50%, 
+    transparent 80%);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  to {
+    transform: translate(50%, 50%) rotate(360deg);
+  }
 }
 
 .action-btn {
@@ -993,32 +948,7 @@ button:hover {
   color: #E74C3C;
 }
 
-/* ============== MODAL MODERNO ============== */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(8px);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: modalFadeIn 0.3s ease-out;
-}
 
-.modal-content {
-  background: var(--modal-bg);
-  width: 95%;
-  max-width: 500px;
-  border-radius: 24px;
-  padding: 2rem;
-  position: relative;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.2);
-  transform: scale(0.95);
-  animation: modalScaleIn 0.3s ease-out forwards;
 }
 
 @keyframes modalScaleIn {

@@ -45,3 +45,35 @@ if ('serviceWorker' in navigator) {
   var splash = document.getElementById('splash');
   splash.style.display = 'none';
   };
+
+
+// ICONO DE MOSTRAR/OCULTAR CONTRASEÑA
+document.addEventListener("DOMContentLoaded", function () {
+  const togglePassword = document.getElementById("togglePassword");
+  const passwordField = document.getElementById('password');
+
+  if (togglePassword && passwordField) {
+    togglePassword.addEventListener('click', function () {
+      const isPassword = passwordField.type === 'password';
+      
+      // Cambiar tipo de input
+      passwordField.type = isPassword ? 'text' : 'password';
+      
+      // Cambiar icono visual
+      this.classList.toggle('fa-eye-slash', isPassword);
+      this.classList.toggle('fa-eye', !isPassword);
+      
+      // Actualizar accesibilidad
+      const label = isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña';
+      this.setAttribute('aria-label', label);
+    });
+  }
+});
+
+// Aqui se puede agregar cualquier comportamiento dinamico si es necesario
+// Ejemplo: Cambiar las iniciales con el nombre del usuario al iniciar sesion
+document.addEventListener("DOMContentLoaded", () => {
+  // Cambiar las iniciales del usuario (esto depende de la logica Back-End)
+  const userInitials = "DN"; // Suponiendo que 'DN' son las iniciales del usuario
+  document.getElementById('user-initials').textContent = userInitials;
+});

@@ -2,220 +2,248 @@
 
 {% block content %}
 <div id="splash" class="splash-screen">
-  <img style="border-radius: 54px;" src="{{ url_for('static', filename='/images/letraA.png') }}" alt="Ambiqua Logo" class="logo-splash">
+  <img src="{{ url_for('static', filename='images/letraA.png') }}" alt="Ambiqua Logo" class="logo-splash">
 </div>
 
 <section id="dashboard">
   <h2>Panel de Control</h2>
   <div class="user-info">
     <p>Bienvenido, <strong>{{ user.username }}</strong></p>
-    <button class="btn-add" id="addPlantBtn">+ Agregar sistema ⚙️</button>
+    <button class="btn-add" id="addSystemBtn">+ Agregar sistema ⚙️</button>
   </div>
 
-  <div class="cnt-info-card">
+  <!-- Modal para sistema ESP32 -->
+  <div id="systemModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 class="modal-title">🔌 Conectar Nuevo Sistema</h2>
+      <form id="systemForm" class="form-grid">
+        <div class="form-group">
+          <label for="systemName">Nombre del Sistema</label>
+          <input type="text" id="systemName" placeholder="Ej: Invernadero Principal" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="esp32Id">ID del ESP32</label>
+          <input type="text" id="esp32Id" placeholder="Ej: ESP32-AMB-001" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="ipAddress">Dirección IP</label>
+          <input type="text" id="ipAddress" placeholder="Ej: 192.168.1.100" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="connectionType">Tipo de Conexión</label>
+          <select id="connectionType" required>
+            <option value="" disabled selected>Seleccione tipo</option>
+            <option value="wifi">Wi-Fi 📶</option>
+            <option value="ethernet">Ethernet 🔌</option>
+            <option value="cellular">Celular 📡</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="securityKey">Clave de Seguridad</label>
+          <input type="password" id="securityKey" placeholder="Ingrese su clave" required>
+        </div>
+        
+        <button type="submit" class="submit-btn">
+          <span class="btn-text">Conectar Sistema</span>
+          
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Secciones de información -->
+  <div class="dashboard-grid">
     <div class="info-card">
       <h3>Estado del sistema</h3>
-      <br>
-      <p>Estado ESP32: <span style="color: green; font-weight: 900">Conectado{{ esp32_status }}</span></p>
-      <br>
-      <p>Estado Valvula: <span>{{ valve_status }}</span></p>
-
-<!--     <ul id="plant-list">
-      {% for plant in user.plants %}
-      <li>
-
-        <strong>{{ plant.name }}</strong> – Humedad Requerida: <span>{{ plant.humidity_required }}</span>% – Último Riego: <span>{{ plant.last_watered }}</span>
-        <button class="toggle-valve-btn" data-plant-id="{{ plant.id }}">Abrir/Cerrar Válvula</button>
-        </li>
-        {% endfor %}
-      </ul> -->
-      <br>
+      <div class="status-grid">
+        <p>ESP32: <span class="status-connected">Conectado{{ esp32_status }}</span></p>
+        <p>Válvula: <span class="valve-status">{{ valve_status }}</span></p>
+      </div>
     </div>
-  </div>
 
-  <div class="cnt-info-card">
     <div class="info-card">
       <h3>Sensores</h3>
-      <br>
-      <p>Humedad: <span>{{ humidity }}</span>%</p>
-      <br>
-      <p>Temperatura: <span>{{ temperature }}</span>°C</p>
-      <br>
-    
+      <div class="sensor-grid">
+        <p>Humedad: <span class="sensor-value">{{ humidity }}%</span></p>
+        <p>Temperatura: <span class="sensor-value">{{ temperature }}°C</span></p>
+      </div>
     </div>
   </div>
 
-  <div class="boton-valvula">
-    <button id="toggleValveBtn">Abrir / Cerrar Válvula</button>
+  <div class="action-section">
+    <button id="toggleValveBtn" class="action-btn">Abrir / Cerrar Válvula</button>
   </div>
 
-  
   <section id="config">
     <div class="config-system">
       <h3>Configuración del Sistema</h3>
-      <label for="humidityThreshold">Umbral de Humedad:</label>
-      <input type="number" id="humidityThreshold" placeholder="50 %">
-      <button id="saveConfigBtn">Guardar Configuración</button>
+      <div class="config-input">
+        <label for="humidityThreshold">Umbral de Humedad:</label>
+        <input type="number" id="humidityThreshold" placeholder="50 %">
+      </div>
+      <button id="saveConfigBtn" class="save-btn">Guardar Configuración</button>
     </div>
   </section>
-  
 </section>
 
-<!-- Modal para agregar cultivo -->
-<!-- <div id="addPlantModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h2>Agregar Cultivo</h2>
-    <label for="plantName">Nombre del Cultivo:</label>
-    <input type="text" id="plantName" placeholder="Nombre del cultivo" required>
-    <label for="humidityRequired">Humedad Requerida (%):</label>
-    <input type="number" id="humidityRequired" placeholder="Humedad requerida" required>
-    <button id="submitPlantBtn">Agregar Cultivo</button>
-  </div>
-</div>
- -->
 {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <script>
-            {% for category, message in messages %}
-                Swal.fire({
-                    title: "{{ category.title() }}!",
-                    text: "{{ message }}",
-                    icon: "{{ category }}",
-                    confirmButtonText: 'Está bien.',
-                    confirmButtonColor: '#00512D'
-                });
-            {% endfor %}
-        </script>
-    {% endif %}
+  {% if messages %}
+    <script>
+      {% for category, message in messages %}
+        Swal.fire({
+          title: "{{ category.title() }}!",
+          text: "{{ message }}",
+          icon: "{{ category }}",
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#00512D'
+        });
+      {% endfor %}
+    </script>
+  {% endif %}
 {% endwith %}
-{% endblock %}
 
 <script>
-  // Lógica para abrir/cerrar válvula
-  document.querySelectorAll('.toggle-valve-btn').forEach(button => {
-    button.addEventListener('click', function() {
-      const plantId = this.getAttribute('data-plant-id');
-      const valveState = confirm("¿Deseas abrir/cerrar la válvula para esta planta?");
-      fetch('/api/valve', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ open: valveState })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire('Éxito', 'La válvula se ha actualizado.', 'success');
-        } else {
-          Swal.fire('Error', 'No se pudo actualizar la válvula.', 'error');
-        }
-      });
-    });
-  });
-
-
-  // Guardar configuración
-  document.getElementById('saveConfigBtn').addEventListener('click', function() {
-    const threshold = document.getElementById('humidityThreshold').value;
-    fetch('/api/config', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-            body: JSON.stringify({ threshold: threshold })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        Swal.fire('Éxito', 'La configuración se ha guardado.', 'success');
-      } else {
-        Swal.fire('Error', 'No se pudo guardar la configuración.', 'error');
-      }
-    });
-  });
-
-    // Lógica para abrir el modal de agregar cultivo
-  const addPlantBtn = document.getElementById('addPlantBtn');
-  const addPlantModal = document.getElementById('addPlantModal');
-  const closeModal = document.querySelector('.close');
-
-  addPlantBtn.onclick = function() {
-    addPlantModal.style.display = "block";
+document.addEventListener('DOMContentLoaded', () => {
+  // Control del Modal
+  const systemModal = document.getElementById('systemModal');
+  const openSystemModal = () => {
+    systemModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
   }
 
-  closeModal.onclick = function() {
-    addPlantModal.style.display = "none";
+  const closeSystemModal = () => {
+    systemModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
   }
 
-  window.onclick = function(event) {
-    if (event.target == addPlantModal) {
-      addPlantModal.style.display = "none";
-    }
-  }
+  document.getElementById('addSystemBtn').addEventListener('click', openSystemModal);
+  document.querySelector('#systemModal .close').addEventListener('click', closeSystemModal);
+  window.addEventListener('click', (e) => e.target === systemModal && closeSystemModal());
 
-  // Enviar datos del nuevo cultivo
-  document.getElementById('submitPlantBtn').addEventListener('click', function() {
-    const plantName = document.getElementById('plantName').value;
-    const humidityRequired = document.getElementById('humidityRequired').value;
-
-    fetch('/api/plants', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ name: plantName, humidity_required: humidityRequired })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        Swal.fire('Éxito', 'Cultivo agregado correctamente.', 'success');
-        // Aquí puedes agregar lógica para actualizar la lista de cultivos sin recargar la página
-        location.reload(); // Recargar la página para ver el nuevo cultivo
-      } else {
-        Swal.fire('Error', 'No se pudo agregar el cultivo.', 'error');
-      }
-    });
-  });
+  // Resto del código JavaScript...
+});
 </script>
 
 <style>
-/* Estilos para el modal */
+:root {
+  --primary-color: #58CC02;
+  --secondary-color: #4AB001;
+  --background-dark: #012B1C;
+}
+
+/* Estilos del modal */
 .modal {
-  display: none; /* Oculto por defecto */
-  position: fixed; /* Queda en la pantalla */
-  z-index: 1; /* Se queda encima */
-  left: 0;
+  display: none;
+  position: fixed;
   top: 0;
-  width: 100%; /* Ancho completo */
-  height: 100%; /* Alto completo */
-  overflow: auto; /* Habilita el scroll si es necesario */
-  background-color: rgb(0,0,0); /* Color de fondo */
-  background-color: rgba(0,0,0,0.4); /* Fondo negro con opacidad */
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-content {
-  background-color: #fefefe;
-  margin: 15% auto; /* 15% desde la parte superior y centrado */
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%; /* Ancho del modal */
-  border-radius: 10px;
+  background: white;
+  width: 90%;
+  max-width: 600px;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  animation: modalSlide 0.3s ease-out;
 }
 
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
+@keyframes modalSlide {
+  from { transform: translateY(-50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
+.form-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #2D3748;
+}
+
+.form-group input,
+.form-group select {
+  padding: 1rem;
+  border: 2px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(88,204,2,0.1);
+}
+
+.submit-btn {
+  background: var(--primary-color);
+  color: white;
+  padding: 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+.btn-add {
+  background: var(--primary-color);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(88,204,2,0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(88,204,2,0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+  
+  .form-grid {
+    gap: 1rem;
+  }
+  
+  .btn-add {
+    padding: 1rem;
+    width: 100%;
+  }
 }
 </style>
-</script>
+{% endblock %}
