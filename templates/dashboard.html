@@ -1,105 +1,204 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div id="splash" class="splash-screen">
-  <img src="{{ url_for('static', filename='images/letraA.png') }}" alt="Ambiqua Logo" class="logo-splash">
-</div>
-
-<section id="dashboard">
-  <h2>Panel de Control</h2>
-  <div class="user-info">
-    <p>Bienvenido, <strong>{{ user.username }}</strong></p>
-    <button class="btn-add" id="addSystemBtn">+ Agregar sistema ⚙️</button>
+<div class="app-content">
+  <div id="splash" class="splash-screen">
+    <img src="{{ url_for('static', filename='images/letraA.png') }}" alt="Ambiqua Logo" class="logo-splash">
   </div>
 
-  <!-- Modal para sistema ESP32 -->
-  <div id="systemModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2 class="modal-title">🔌 Conectar Nuevo Sistema</h2>
-      <form id="systemForm" class="form-grid">
-        <div class="form-group">
-          <label for="systemName">Nombre del Sistema</label>
-          <input type="text" id="systemName" placeholder="Ej: Invernadero Principal" required>
+  <section id="dashboard" class="dashboard-container">
+    <!-- Sección de Bienvenida -->
+    <div class="welcome-section">
+      <div class="welcome-text">
+        <h2>¡Bienvenido, <span class="highlight">{{ user.username }}</span>! 👋</h2>
+        <p>Gestiona tus sistemas de riego de manera inteligente</p>
+      </div>
+      <div class="welcome-stats">
+        <div class="stat-badge">
+          <i class="fas fa-leaf"></i>
+          <span>{{ systems|length }} Sistemas</span>
         </div>
-        
-        <div class="form-group">
-          <label for="esp32Id">ID del ESP32</label>
-          <input type="text" id="esp32Id" placeholder="Ej: ESP32-AMB-001" required>
+        <div class="stat-badge">
+          <i class="fas fa-tint"></i>
+          <span>Riego Activo</span>
         </div>
-        
-        <div class="form-group">
-          <label for="ipAddress">Dirección IP</label>
-          <input type="text" id="ipAddress" placeholder="Ej: 192.168.1.100" required>
+      </div>
+    </div>
+
+    <!-- Grid de Estadísticas -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <i class="fas fa-thermometer-half"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="temperatureValue">25°C</h3>
+            <p>Temperatura Actual</p>
+          </div>
         </div>
-        
-        <div class="form-group">
-          <label for="connectionType">Tipo de Conexión</label>
-          <select id="connectionType" required>
-            <option value="" disabled selected>Seleccione tipo</option>
-            <option value="wifi">Wi-Fi 📶</option>
-            <option value="ethernet">Ethernet 🔌</option>
-            <option value="cellular">Celular 📡</option>
-          </select>
+        <div class="stat-trend up">
+          <i class="fas fa-arrow-up"></i>
+          <span>2°C desde ayer</span>
         </div>
-        
-        <div class="form-group">
-          <label for="securityKey">Clave de Seguridad</label>
-          <input type="password" id="securityKey" placeholder="Ingrese su clave" required>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <i class="fas fa-tint"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="humidityValue">65%</h3>
+            <p>Humedad Actual</p>
+          </div>
         </div>
-        
-        <button type="submit" class="submit-btn">
-          <span class="btn-text">Conectar Sistema</span>
+        <div class="stat-trend down">
+          <i class="fas fa-arrow-down"></i>
+          <span>5% desde ayer</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <i class="fas fa-plug"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="valveStatus">Cerrada</h3>
+            <p>Estado de Válvula</p>
+          </div>
+        </div>
+        <div class="stat-actions">
+          <button id="toggleValveBtn" class="action-btn">
+            <i class="fas fa-power-off"></i>
+            <span>Cambiar Estado</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configuración del Sistema -->
+    <div class="config-section">
+      <div class="config-card">
+        <h3><i class="fas fa-cog"></i> Configuración del Sistema</h3>
+        <div class="config-form">
+          <div class="form-group">
+            <label for="humidityThreshold">
+              <i class="fas fa-sliders-h"></i>
+              Umbral de Humedad
+            </label>
+            <div class="range-input">
+              <input type="range" id="humidityThreshold" min="0" max="100" value="50">
+              <span class="range-value">50%</span>
+            </div>
+          </div>
+          <button id="saveConfigBtn" class="save-btn">
+            <i class="fas fa-save"></i>
+            Guardar Configuración
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Flotante para Agregar Sistema -->
+    <button class="add-system-btn" id="addSystemBtn">
+      <i class="fas fa-plus"></i>
+      <span>Agregar Sistema</span>
+    </button>
+
+    <!-- Modal para Agregar Sistema -->
+    <div id="systemModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2><i class="fas fa-microchip"></i> Conectar Nuevo Sistema</h2>
+        <form id="systemForm" class="form-grid">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="systemName">
+                <i class="fas fa-tag"></i>
+                Nombre del Sistema
+              </label>
+              <input type="text" id="systemName" placeholder="Ej: Invernadero Principal" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="esp32Id">
+                <i class="fas fa-microchip"></i>
+                ID del ESP32
+              </label>
+              <input type="text" id="esp32Id" placeholder="Ej: ESP32-AMB-001" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ipAddress">
+                <i class="fas fa-network-wired"></i>
+                Dirección IP
+              </label>
+              <input type="text" id="ipAddress" placeholder="Ej: 192.168.1.100" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="connectionType">
+                <i class="fas fa-wifi"></i>
+                Tipo de Conexión
+              </label>
+              <select id="connectionType" required>
+                <option value="" disabled selected>Seleccione tipo</option>
+                <option value="wifi">Wi-Fi 📶</option>
+                <option value="ethernet">Ethernet 🔌</option>
+                <option value="cellular">Celular 📡</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="securityKey">
+                <i class="fas fa-key"></i>
+                Clave de Seguridad
+              </label>
+              <div class="password-input">
+                <input type="password" id="securityKey" placeholder="Ingrese su clave" required>
+                <button type="button" class="toggle-password">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="sensorCount">
+                <i class="fas fa-sensor"></i>
+                Cantidad de Sensores
+              </label>
+              <div class="number-input">
+                <button type="button" class="number-btn minus">-</button>
+                <input type="number" id="sensorCount" min="1" value="1" required>
+                <button type="button" class="number-btn plus">+</button>
+              </div>
+            </div>
+          </div>
           
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Secciones de información -->
-  <div class="dashboard-grid">
-    <div class="info-card">
-      <h3>Estado del sistema</h3>
-      <div class="status-grid">
-        <p>ESP32: <span class="status-connected">Conectado{{ esp32_status }}</span></p>
-        <p>Válvula: <span class="valve-status">{{ valve_status }}</span></p>
+          <button type="submit" class="submit-btn">
+            <span class="btn-text">Conectar Sistema</span>
+            <i class="fas fa-spinner fa-spin btn-loader"></i>
+          </button>
+        </form>
       </div>
-    </div>
-
-    <div class="info-card">
-      <h3>Sensores</h3>
-      <div class="sensor-grid">
-        <p>Humedad: <span class="sensor-value">{{ humidity }}%</span></p>
-        <p>Temperatura: <span class="sensor-value">{{ temperature }}°C</span></p>
-      </div>
-    </div>
-  </div>
-
-  <div class="action-section">
-    <button id="toggleValveBtn" class="action-btn">Abrir / Cerrar Válvula</button>
-  </div>
-
-  <section id="config">
-    <div class="config-system">
-      <h3>Configuración del Sistema</h3>
-      <div class="config-input">
-        <label for="humidityThreshold">Umbral de Humedad:</label>
-        <input type="number" id="humidityThreshold" placeholder="50 %">
-      </div>
-      <button id="saveConfigBtn" class="save-btn">Guardar Configuración</button>
     </div>
   </section>
-</section>
+</div>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     <script>
       {% for category, message in messages %}
         Swal.fire({
-          title: "{{ category.title() }}!",
           text: "{{ message }}",
           icon: "{{ category }}",
-          confirmButtonText: 'OK',
+          confirmButtonText: 'OK!',
           confirmButtonColor: '#00512D'
         });
       {% endfor %}
@@ -114,18 +213,95 @@ document.addEventListener('DOMContentLoaded', () => {
   const openSystemModal = () => {
     systemModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    systemModal.classList.add('modal-open');
   }
 
   const closeSystemModal = () => {
     systemModal.style.display = 'none';
     document.body.style.overflow = 'auto';
+    systemModal.classList.remove('modal-open');
   }
 
   document.getElementById('addSystemBtn').addEventListener('click', openSystemModal);
   document.querySelector('#systemModal .close').addEventListener('click', closeSystemModal);
   window.addEventListener('click', (e) => e.target === systemModal && closeSystemModal());
 
-  // Resto del código JavaScript...
+  // Toggle Password Visibility
+  const togglePassword = document.querySelector('.toggle-password');
+  const passwordInput = document.getElementById('securityKey');
+  
+  togglePassword.addEventListener('click', () => {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    togglePassword.querySelector('i').classList.toggle('fa-eye');
+    togglePassword.querySelector('i').classList.toggle('fa-eye-slash');
+  });
+
+  // Control de inputs numéricos
+  const numberInputs = document.querySelectorAll('.number-input');
+  numberInputs.forEach(input => {
+    const minusBtn = input.querySelector('.minus');
+    const plusBtn = input.querySelector('.plus');
+    const numberInput = input.querySelector('input[type="number"]');
+
+    minusBtn.addEventListener('click', () => {
+      const currentValue = parseInt(numberInput.value);
+      if (currentValue > parseInt(numberInput.min)) {
+        numberInput.value = currentValue - 1;
+      }
+    });
+
+    plusBtn.addEventListener('click', () => {
+      const currentValue = parseInt(numberInput.value);
+      numberInput.value = currentValue + 1;
+    });
+  });
+
+  // Manejo del formulario
+  document.getElementById('systemForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const loader = submitBtn.querySelector('.btn-loader');
+    
+    submitBtn.disabled = true;
+    loader.style.display = 'inline-block';
+    
+    try {
+      const formData = {
+        name: document.getElementById('systemName').value,
+        esp32_id: document.getElementById('esp32Id').value,
+        ip_address: document.getElementById('ipAddress').value,
+        connection_type: document.getElementById('connectionType').value,
+        security_key: document.getElementById('securityKey').value,
+        sensor_count: document.getElementById('sensorCount').value
+      };
+
+      const response = await fetch('/api/systems', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      if (response.ok) {
+        closeSystemModal();
+        location.reload();
+      } else {
+        throw new Error('Error al conectar el sistema');
+      }
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: error.message,
+        icon: 'error',
+        confirmButtonColor: '#58CC02'
+      });
+    } finally {
+      submitBtn.disabled = false;
+      loader.style.display = 'none';
+    }
+  });
 });
 </script>
 
@@ -144,105 +320,228 @@ document.addEventListener('DOMContentLoaded', () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(5px);
+  background: rgba(0,0,0,0.8);
   z-index: 1000;
   justify-content: center;
   align-items: center;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal.modal-open {
+  opacity: 1;
 }
 
 .modal-content {
-  background: white;
+  background: var(--gradient-modal);
+  border-radius: var(--border-radius);
+  padding: 3rem;
   width: 90%;
-  max-width: 600px;
-  padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  animation: modalSlide 0.3s ease-out;
+  max-width: 800px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  border: 1px solid rgba(88, 204, 2, 0.1);
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
 }
 
-@keyframes modalSlide {
-  from { transform: translateY(-50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+.modal.modal-open .modal-content {
+  transform: translateY(0);
 }
 
+.modal-content h2 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 2.5rem;
+  color: var(--text-light);
+  font-size: 2rem;
+}
+
+.close {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  font-size: 2rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  transition: var(--transition);
+}
+
+.close:hover {
+  color: var(--primary-color);
+  transform: rotate(90deg);
+}
+
+/* Formulario */
 .form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.form-row {
   display: grid;
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .form-group label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-light);
   font-weight: 500;
-  color: #2D3748;
+  font-size: 1.2rem;
+}
+
+.form-group label i {
+  color: var(--primary-color);
+  font-size: 1.4rem;
 }
 
 .form-group input,
 .form-group select {
-  padding: 1rem;
-  border: 2px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  padding: 1.2rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-light);
+  font-size: 1.1rem;
+  transition: var(--transition);
 }
 
 .form-group input:focus,
 .form-group select:focus {
+  outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(88,204,2,0.1);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(88, 204, 2, 0.2);
+}
+
+/* Input de contraseña */
+.password-input {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: var(--transition);
+}
+
+.toggle-password:hover {
+  color: var(--primary-color);
+}
+
+/* Inputs Numéricos */
+.number-input {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.number-btn {
+  width: 3rem;
+  height: 3rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.number-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(88, 204, 2, 0.3);
+}
+
+.number-input input {
+  flex: 1;
+  text-align: center;
+  padding: 1rem;
 }
 
 .submit-btn {
-  background: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--gradient-primary);
   color: white;
-  padding: 1.2rem;
   border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: var(--border-radius);
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
+  margin-top: 2rem;
+  font-size: 1.2rem;
 }
 
 .submit-btn:hover {
-  background: var(--secondary-color);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(88, 204, 2, 0.3);
 }
 
-.btn-add {
-  background: var(--primary-color);
-  color: white;
-  padding: 1rem 2rem;
-  border-radius: 30px;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(88,204,2,0.3);
-  transition: all 0.3s ease;
+.btn-loader {
+  display: none;
 }
 
-.btn-add:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(88,204,2,0.4);
-}
-
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
   .modal-content {
     width: 95%;
+    padding: 2rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 1rem;
+  }
+
+  .number-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
     padding: 1.5rem;
   }
-  
-  .form-grid {
-    gap: 1rem;
+
+  .modal-content h2 {
+    font-size: 1.8rem;
   }
-  
-  .btn-add {
-    padding: 1rem;
-    width: 100%;
+
+  .form-group label {
+    font-size: 1.1rem;
   }
 }
 </style>

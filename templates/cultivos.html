@@ -2,142 +2,508 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="cultivos-main">
-  <div class="cultivos-header">
-    <h1 class="cultivos-title">
-      <span class="title-icon">🌱</span>
-      <span>Mis Cultivos</span>
-    </h1>
-    <button class="btn-add" id="addPlantBtn" data-tooltip="Agregar nuevo cultivo">
-      <span class="btn-icon">+</span>
-      <span class="btn-text">Nuevo Cultivo</span>
-    </button>
-  </div>
-  
-  <div class="plants-grid" id="plant-list">
-    {% for plant in user.plants %}
-    <div class="plant-card" data-plant-id="{{ plant.id }}">
-      <div class="plant-header">
-        <h3 class="plant-name">{{ plant.name }}</h3>
-        <span class="plant-status" data-status="active">
-          <span class="status-icon">🌿</span>
-          <span class="status-text">Activo</span>
-        </span>
+<div class="app-content">
+  <div class="cultivos-main">
+    <div class="cultivos-header">
+      <div class="header-content">
+        <h1 class="cultivos-title">
+          <i class="fas fa-leaf"></i>
+          Mis Cultivos
+        </h1>
+        <p class="cultivos-subtitle">Gestiona y monitorea tus cultivos de manera inteligente</p>
       </div>
-      
-      <div class="plant-metrics">
-        <div class="metric-item" data-tooltip="Humedad necesaria para un crecimiento óptimo">
-          <div class="metric-icon">💧</div>
-          <div class="metric-info">
-            <div class="metric-value">{{ plant.humidity_required }}%</div>
-            <div class="metric-label">Humedad Requerida</div>
+    </div>
+    
+    <div class="plants-grid" id="plant-list">
+      {% for plant in user.plants %}
+      <div class="plant-card" data-plant-id="{{ plant.id }}">
+        <div class="plant-header">
+          <div class="plant-info">
+            <h3 class="plant-name">{{ plant.name }}</h3>
+            <span class="plant-status" data-status="active">
+              <i class="fas fa-circle"></i>
+              <span>Activo</span>
+            </span>
+          </div>
+          <div class="plant-actions">
+            <button class="action-btn edit-btn" data-tooltip="Editar cultivo">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete-btn" data-tooltip="Eliminar cultivo">
+              <i class="fas fa-trash"></i>
+            </button>
           </div>
         </div>
         
-        <div class="metric-item" data-tooltip="Temperatura actual del ambiente">
-          <div class="metric-icon">🌡️</div>
-          <div class="metric-info">
-            <div class="metric-value">24°C</div>
-            <div class="metric-label">Temperatura Actual</div>
+        <div class="plant-metrics">
+          <div class="metric-item">
+            <div class="metric-icon">
+              <i class="fas fa-tint"></i>
+            </div>
+            <div class="metric-info">
+              <div class="metric-value">{{ plant.humidity_required }}%</div>
+              <div class="metric-label">Humedad Requerida</div>
+            </div>
+          </div>
+          
+          <div class="metric-item">
+            <div class="metric-icon">
+              <i class="fas fa-thermometer-half"></i>
+            </div>
+            <div class="metric-info">
+              <div class="metric-value">24°C</div>
+              <div class="metric-label">Temperatura Actual</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="plant-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 75%"></div>
+          </div>
+          <div class="progress-info">
+            <span>75% de crecimiento</span>
           </div>
         </div>
       </div>
-      
-      <div class="plant-actions">
-        <button class="action-btn edit-btn" data-tooltip="Editar cultivo">
-          <span class="btn-icon">✏️</span>
-          <span class="btn-text">Editar</span>
-        </button>
-        <button class="action-btn delete-btn" data-tooltip="Eliminar cultivo">
-          <span class="btn-icon">🗑️</span>
-          <span class="btn-text">Eliminar</span>
-        </button>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-content">
+          <i class="fas fa-seedling"></i>
+          <h3>No hay cultivos registrados</h3>
+          <p>Comienza agregando tu primer cultivo</p>
+          <button class="btn-add" id="addPlantBtn">
+            <i class="fas fa-plus"></i>
+            <span>Agregar Cultivo</span>
+          </button>
+        </div>
       </div>
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <img src="{{ url_for('static', filename='images/empty.svg') }}" alt="Sin cultivos" class="empty-image">
-      <p class="empty-text">Aún no tienes cultivos registrados</p>
-      <button class="btn-add" onclick="document.getElementById('addPlantBtn').click()">
-        <span class="btn-icon">+</span>
-        <span class="btn-text">Agregar mi primer cultivo</span>
+      {% endfor %}
+
+      <!-- Botón Flotante de Agregar -->
+      <button class="btn-add" id="addPlantBtn">
+        <i class="fas fa-plus"></i>
+        <span>Nuevo Cultivo</span>
       </button>
     </div>
-    {% endfor %}
+
+    
+
+
+
+    <!-- Modal para agregar cultivo -->
+    <div id="addPlantModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2><i class="fas fa-seedling"></i> Agregar Nuevo Cultivo</h2>
+        <form id="plantForm" class="form-grid">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="plantName">
+                <i class="fas fa-tag"></i>
+                Nombre del Cultivo
+              </label>
+              <input type="text" id="plantName" required placeholder="Ej: Tomates Cherry">
+            </div>
+            
+            <div class="form-group">
+              <label for="valveName">
+                <i class="fas fa-faucet"></i>
+                Nombre de Válvula
+              </label>
+              <input type="text" id="valveName" required placeholder="Ej: Válvula Principal">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="sensors">
+                <i class="fas fa-microchip"></i>
+                Cantidad de Sensores
+              </label>
+              <div class="number-input">
+                <button type="button" class="number-btn minus">-</button>
+                <input type="number" id="sensors" min="1" value="1" required>
+                <button type="button" class="number-btn plus">+</button>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="plants">
+                <i class="fas fa-leaf"></i>
+                Cantidad de Plantas
+              </label>
+              <div class="number-input">
+                <button type="button" class="number-btn minus">-</button>
+                <input type="number" id="plants" min="1" value="1" required>
+                <button type="button" class="number-btn plus">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="sensorType">
+                <i class="fas fa-tools"></i>
+                Tipo de Sensor
+              </label>
+              <select id="sensorType" required>
+                <option value="" disabled selected>Selecciona un sensor</option>
+                <option value="temperature">Temperatura 🌡️</option>
+                <option value="humidity">Humedad 💧</option>
+                <option value="ph">Nivel de pH 🧪</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="humidityThreshold">
+                <i class="fas fa-sliders-h"></i>
+                Umbral de Humedad
+              </label>
+              <div class="range-input">
+                <input type="range" id="humidityThreshold" min="0" max="100" value="50">
+                <span class="range-value">50%</span>
+              </div>
+            </div>
+          </div>
+          
+          <button type="submit" class="submit-btn">
+            <span class="btn-text">Crear Cultivo</span>
+            <i class="fas fa-spinner fa-spin btn-loader"></i>
+          </button>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Modal para agregar cultivo -->
-<div id="addPlantModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Agregar Nuevo Cultivo</h2>
-        <form id="plantForm">
-            <div class="form-group">
-                <label for="plantName">Nombre de la huerta 🌱</label>
-                <input type="text" id="plantName" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="valveName">Nombre de válvula</label>
-                <input type="text" id="valveName" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="sensors">Cantidad de sensores</label>
-                <input type="number" id="sensors" min="1" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="plants">Cantidad de plantas 🌿</label>
-                <input type="number" id="plants" min="1" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="sensorType">Tipo de sensor</label>
-                <select id="sensorType" required>
-                    <option value="" disabled selected>Selecciona un sensor</option>
-                    <option value="temperature">Temperatura 🌡️</option>
-                    <option value="humidity">Humedad 💧</option>
-                    <option value="ph">Nivel de pH 🧪</option>
-                </select>
-            </div>
-            
-            <button type="submit" id="submitPlantBtn">Crear Cultivo</button>
-        </form>
-    </div>
-</div>
+<style>
+/* Estilos del modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal.modal-open {
+  opacity: 1;
+}
+
+.modal-content {
+  background: var(--gradient-modal);
+  border-radius: var(--border-radius);
+  padding: 3rem;
+  width: 90%;
+  max-width: 800px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  border: 1px solid rgba(88, 204, 2, 0.1);
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.modal.modal-open .modal-content {
+  transform: translateY(0);
+}
+
+.modal-content h2 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 2.5rem;
+  color: var(--text-light);
+  font-size: 2rem;
+}
+
+.close {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  font-size: 2rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  transition: var(--transition);
+}
+
+.close:hover {
+  color: var(--primary-color);
+  transform: rotate(90deg);
+}
+
+/* Formulario */
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-light);
+  font-weight: 500;
+  font-size: 1.2rem;
+}
+
+.form-group label i {
+  color: var(--primary-color);
+  font-size: 1.4rem;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.7rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-light);
+  font-size: 1.1rem;
+  transition: var(--transition);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(88, 204, 2, 0.2);
+}
+
+/* Inputs Numéricos */
+.number-input {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.number-btn {
+  width: 3rem;
+  height: 3rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.number-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(88, 204, 2, 0.3);
+}
+
+.number-input input {
+  flex: 1;
+  text-align: center;
+  padding: 0.4rem;
+}
+
+/* Range Input */
+.range-input {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.range-input input[type="range"] {
+  flex: 1;
+  height: 8px;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.range-input input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 0 10px rgba(88, 204, 2, 0.3);
+}
+
+.range-input input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 15px rgba(88, 204, 2, 0.5);
+}
+
+.range-value {
+  min-width: 60px;
+  text-align: center;
+  color: var(--text-light);
+  font-weight: 700;
+  font-size: 1.2rem;
+  background: var(--gradient-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(88, 204, 2, 0.2);
+}
+
+.submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 2rem;
+  font-size: 1.2rem;
+}
+
+.submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(88, 204, 2, 0.3);
+}
+
+.btn-loader {
+  display: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 2rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 1rem;
+  }
+
+  .number-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 1.5rem;
+  }
+
+  .modal-content h2 {
+    font-size: 1.8rem;
+  }
+
+  .form-group label {
+    font-size: 1.1rem;
+  }
+}
+</style>
 
 <script>
-  // Animación mejorada para el modal
+document.addEventListener('DOMContentLoaded', () => {
+  // Control del Modal
   const modal = document.getElementById('addPlantModal');
+  const addPlantBtn = document.getElementById('addPlantBtn');
+  
   const openModal = () => {
     modal.style.display = 'flex';
-    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    modal.classList.add('modal-open');
   }
 
   const closeModal = () => {
-    modal.classList.remove('show');
-    setTimeout(() => {
-      modal.style.display = 'none';
-    }, 300);
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    modal.classList.remove('modal-open');
   }
 
-  document.querySelector('.close').addEventListener('click', closeModal);
+  addPlantBtn.addEventListener('click', openModal);
+  document.querySelector('#addPlantModal .close').addEventListener('click', closeModal);
   window.addEventListener('click', (e) => e.target === modal && closeModal());
-  document.getElementById('addPlantBtn').addEventListener('click', openModal);
 
-  // Mejor manejo del formulario
+  // Control de inputs numéricos
+  const numberInputs = document.querySelectorAll('.number-input');
+  numberInputs.forEach(input => {
+    const minusBtn = input.querySelector('.minus');
+    const plusBtn = input.querySelector('.plus');
+    const numberInput = input.querySelector('input[type="number"]');
+
+    minusBtn.addEventListener('click', () => {
+      const currentValue = parseInt(numberInput.value);
+      if (currentValue > parseInt(numberInput.min)) {
+        numberInput.value = currentValue - 1;
+      }
+    });
+
+    plusBtn.addEventListener('click', () => {
+      const currentValue = parseInt(numberInput.value);
+      numberInput.value = currentValue + 1;
+    });
+  });
+
+  // Control del rango de humedad
+  const humidityThreshold = document.getElementById('humidityThreshold');
+  const rangeValue = document.querySelector('.range-value');
+
+  humidityThreshold.addEventListener('input', () => {
+    rangeValue.textContent = `${humidityThreshold.value}%`;
+  });
+
+  // Manejo del formulario
   document.getElementById('plantForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const loader = submitBtn.querySelector('.btn-loader');
     
-    const formData = {
-      name: document.getElementById('plantName').value,
-      humidity_required: document.getElementById('valveName').value,
-      // Agrega aquí los demás campos
-    };
-
+    submitBtn.disabled = true;
+    loader.style.display = 'inline-block';
+    
     try {
+      const formData = {
+        name: document.getElementById('plantName').value,
+        valve_name: document.getElementById('valveName').value,
+        sensor_count: document.getElementById('sensors').value,
+        plant_count: document.getElementById('plants').value,
+        sensor_type: document.getElementById('sensorType').value,
+        humidity_threshold: document.getElementById('humidityThreshold').value
+      };
+
       const response = await fetch('/api/plants', {
         method: 'POST',
         headers: {
@@ -150,11 +516,54 @@
         closeModal();
         location.reload();
       } else {
-        alert('Error al guardar el cultivo');
+        throw new Error('Error al guardar el cultivo');
       }
     } catch (error) {
-      console.error('Error:', error);
+      Swal.fire({
+        title: 'Error',
+        text: error.message,
+        icon: 'error',
+        confirmButtonColor: '#58CC02'
+      });
+    } finally {
+      submitBtn.disabled = false;
+      loader.style.display = 'none';
     }
   });
+
+  // Tooltips
+  const tooltips = document.querySelectorAll('[data-tooltip]');
+  tooltips.forEach(tooltip => {
+    tooltip.addEventListener('mouseenter', (e) => {
+      const tooltipText = e.target.dataset.tooltip;
+      const tooltipEl = document.createElement('div');
+      tooltipEl.className = 'tooltip';
+      tooltipEl.textContent = tooltipText;
+      document.body.appendChild(tooltipEl);
+      
+      const rect = e.target.getBoundingClientRect();
+      tooltipEl.style.top = `${rect.bottom + 5}px`;
+      tooltipEl.style.left = `${rect.left + (rect.width - tooltipEl.offsetWidth) / 2}px`;
+    });
+    
+    tooltip.addEventListener('mouseleave', () => {
+      document.querySelector('.tooltip')?.remove();
+    });
+  });
+
+  // Animaciones de las tarjetas
+  const plantCards = document.querySelectorAll('.plant-card');
+  plantCards.forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      card.style.transform = 'translateY(-10px)';
+      card.style.boxShadow = 'var(--shadow-lg)';
+    });
+    
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'translateY(0)';
+      card.style.boxShadow = 'var(--shadow-sm)';
+    });
+  });
+});
 </script>
 {% endblock %}

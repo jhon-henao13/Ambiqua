@@ -8,6 +8,9 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from itsdangerous import URLSafeTimedSerializer as Serializer
 from flask_bcrypt import Bcrypt
+from datetime import datetime, timedelta
+import requests
+import json
 
 
 # Cargar variables de entorno desde el archivo .env
@@ -23,6 +26,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'  # Redirige al login si no está autenticado
+bcrypt = Bcrypt(app)
 
 # Modelo de Usuario con el nombre de tabla correcto
 class User(db.Model, UserMixin):
@@ -35,6 +39,7 @@ class User(db.Model, UserMixin):
 
     # Relación con Plant
     plants = db.relationship('Plant', backref='user', lazy=True)
+    systems = db.relationship('System', backref='user', lazy=True)
 
 class Plant(db.Model):
     __tablename__ = 'plants'
@@ -43,9 +48,29 @@ class Plant(db.Model):
     name = db.Column(db.String(100), nullable=False)
     humidity_required = db.Column(db.Integer, nullable=True)  # Cambiado a humidity_required
     last_watered = db.Column(db.DateTime, nullable=True)  # Cambiado a last_watered
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    sensor_data = db.relationship('SensorData', backref='plant', lazy=True)
 
-    # No es necesario definir la relación aquí, ya que se maneja en User
+class System(db.Model):
+    __tablename__ = 'systems'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    esp32_id = db.Column(db.String(50), unique=True, nullable=False)
+    ip_address = db.Column(db.String(15), nullable=False)
+    connection_type = db.Column(db.String(20), nullable=False)
+    security_key = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    last_connection = db.Column(db.DateTime, nullable=True)
+    status = db.Column(db.String(20), default='active')
 
+class SensorData(db.Model):
+    __tablename__ = 'sensor_data'
+    id = db.Column(db.Integer, primary_key=True)
+    plant_id = db.Column(db.Integer, db.ForeignKey('plants.id'), nullable=False)
+    humidity = db.Column(db.Float, nullable=False)
+    temperature = db.Column(db.Float, nullable=False)
+    timestamp = db.Column(db.DateTime, server_default=db.func.now())
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -54,7 +79,7 @@ def load_user(user_id):
 # ---------------------- Rutas de Autenticación y demás ----------------------
 
 # Configuracion de SendGrid
-SENDGRID_API_KEY = '(api)'
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 
 # Serializador para crear y verificar tokens
 serializer = Serializer(app.secret_key, salt='password-reset-salt')
@@ -70,7 +95,7 @@ def enviar_email(destinatario, asunto, cuerpo):
     try:
         sg = SendGridAPIClient(SENDGRID_API_KEY) # Usar clave API de SendGrid directamente
         response = sg.send(mensaje)
-        print(f"Correo enviado con éxito! Status code: {response.status.code}")
+        print(f"Correo enviado con éxito! Status code: {response.status_code}")
     except Exception as e:
         print(f'Error al enviar el correo: {e}')
 
@@ -80,7 +105,7 @@ def enviar_email(destinatario, asunto, cuerpo):
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return redirect(url_for('dashboard', user=current_user, esp32_status="Conectado", valve_status="Cerrada", humidity=65, temperature=22))
+        return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
 
 
@@ -131,14 +156,15 @@ def register():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # Aquí se pueden enviar datos relevantes al usuario (ej. lista de cultivos, estado del sistema, etc.)
-    return render_template('dashboard.html', user=current_user)
+    systems = System.query.filter_by(user_id=current_user.id).all()
+    return render_template('dashboard.html', user=current_user, systems=systems)
 
 # Ruta para la gestion de cultivos
 @app.route('/cultivos')
 @login_required
 def cultivos():
-    return render_template('cultivos.html', user=current_user)
+    plants = Plant.query.filter_by(user_id=current_user.id).all()
+    return render_template('cultivos.html', user=current_user, plants=plants)
 
 
 # Ruta para ingresar el correo para recuperar contraseña
@@ -197,46 +223,81 @@ def logout():
 
 # ---------------------- Endpoints API ----------------------
 
+@app.route('/api/systems', methods=['POST'])
+@login_required
+def add_system():
+    data = request.get_json()
+    new_system = System(
+        user_id=current_user.id,
+        name=data['name'],
+        esp32_id=data['esp32Id'],
+        ip_address=data['ipAddress'],
+        connection_type=data['connectionType'],
+        security_key=generate_password_hash(data['securityKey'])
+    )
+    db.session.add(new_system)
+    db.session.commit()
+    return jsonify({"success": True, "system": {"id": new_system.id, "name": new_system.name}})
+
 @app.route('/api/plants', methods=['POST'])
 @login_required
 def add_plant():
     data = request.get_json()
-    new_plant = Plant(user_id=current_user.id, name=data['name'], humidity_required=data['humidity_required'])
+    new_plant = Plant(
+        user_id=current_user.id,
+        name=data['name'],
+        humidity_required=data['humidityRequired']
+    )
     db.session.add(new_plant)
     db.session.commit()
     return jsonify({"success": True, "plant": {"id": new_plant.id, "name": new_plant.name}})
 
-    # GET: Obtener todos los cultivos del usuario
-    plants = Plant.query.filter_by(user_id=current_user.id).all()
-    return jsonify([{"id": plant.id, "name": plant.name, "humidity": plant.humidity, "temperature": plant.temperature} for plant in plants])
-
-
-# API para actualizar la configuración (por ejemplo, umbral de humedad)
-@app.route('/api/config', methods=['POST'])
+@app.route('/api/sensor-data', methods=['POST'])
 @login_required
-def update_config():
+def add_sensor_data():
     data = request.get_json()
-    threshold = data.get("threshold")
-    # Aquí podrías guardar la configuración en la BD o enviarla al ESP32
-    return jsonify({"success": True, "humidityThreshold": threshold})
+    new_data = SensorData(
+        plant_id=data['plantId'],
+        humidity=data['humidity'],
+        temperature=data['temperature']
+    )
+    db.session.add(new_data)
+    db.session.commit()
+    return jsonify({"success": True})
 
-# API para cambiar el estado de la válvula
 @app.route('/api/valve', methods=['POST'])
 @login_required
-def change_valve_state():
+def control_valve():
     data = request.get_json()
-    valve_open = data.get("open")
-    # Aquí se enviaría la orden al ESP32 para abrir o cerrar la válvula
-    enviar_comando_valvula(valve_open)
-    return jsonify({"success": True, "valveOpen": valve_open})
+    system_id = data.get('systemId')
+    action = data.get('action')
+    
+    system = System.query.get(system_id)
+    if not system or system.user_id != current_user.id:
+        return jsonify({"success": False, "error": "Sistema no encontrado"})
+    
+    try:
+        response = requests.post(
+            f"http://{system.ip_address}/valve",
+            json={"action": action, "key": system.security_key},
+            timeout=5
+        )
+        return jsonify(response.json())
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
 
-def enviar_comando_valvula(abrir):
-    # Función simulada para enviar el comando al ESP32
-    if abrir:
-        print("Comando: ABRIR válvula")
-    else:
-        print("Comando: CERRAR válvula")
-    # Aquí se implementa la lógica real de comunicación (HTTP, MQTT, etc.)
+@app.route('/api/plants/<int:plant_id>', methods=['DELETE'])
+@login_required
+def delete_plant(plant_id):
+    plant = Plant.query.get_or_404(plant_id)
+    if plant.user_id != current_user.id:
+        return jsonify({"success": False, "error": "No autorizado"})
+    
+    db.session.delete(plant)
+    db.session.commit()
+    return jsonify({"success": True})
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

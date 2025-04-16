@@ -3,78 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ambiqua - Riego Inteligente</title>
+  <title>Ambiqua - Sistema de Riego Automático</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/plants.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#012B1C">
+  <meta name="description" content="Sistema de riego automático inteligente con ESP32">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/icon-192x192.png') }}">
   <link href="https://db.onlinewebfonts.com/c/14936bb7a4b6575fd2eee80a3ab52cc2?family=Feather+Bold" rel="stylesheet">
-  <!-- Cargar Font Awesome desde CDN -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-
-  <!-- SweetAlert CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-
-  <!-- SweetAlert JS -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 </head>
 <body>
-  <header>
-    {% if current_user.is_authenticated %}
-    <div class="nav-container">
-      <nav class="navbar">
-        <div class="nav-left">
-          <img src="{{ url_for('static', filename='images/letraA.png') }}" alt="Logo" class="logo">
-          <input type="search" name="search" autocomplete="off" placeholder="Busca tus plantas..." class="search-input">
-          <img src="{{ url_for('static', filename='images/lupa-de-busqueda.png') }}" alt="icon" class="icon">
+  {% if current_user.is_authenticated %}
+  <header class="app-header">
+    <nav class="navbar">
+      <div class="nav-left">
+        <img src="{{ url_for('static', filename='images/letraA.png') }}" alt="Ambiqua Logo" class="logo">
+      </div>
+      <div class="nav-center">
+        <div class="search-container">
+          <input type="text" class="search-input" placeholder="Buscar plantas...">
+          <button class="search-btn">
+            <img src="/static/images/lupa-de-busqueda.png" alt="search" class="fas fa-search" width="32px" height="28px">
+          </button>
         </div>
-        <ul class="nav-menu">
-          <li><a href="{{ url_for('dashboard') }}">Inicio</a></li>
-          <li><a href="{{ url_for('cultivos') }}">Mis Cultivos</a></li>
-          <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
-        </ul>
-      </nav>
-    </div>
-    {% endif %}
+      </div>
+      <ul class="nav-menu">
+        <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Inicio</a></li>
+        <li><a href="{{ url_for('cultivos') }}"><i class="fas fa-leaf"></i> Cultivos</a></li>
+        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Salir</a></li>
+      </ul>
+    </nav>
   </header>
+  {% endif %}
 
-
-<main>
-    <div class="container">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <div style="display: none;">  <!-- Ocultar el contenedor de mensajes -->
-            <div class="alert alert-dismissible fade show" role="alert">
-              {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-              {% endfor %}
-            </div>
-          </div>
-        {% endif %}
-      {% endwith %}
-      
-      <!-- Solo un bloque content aquí -->
-      {% block content %}
-      {% endblock %}
-    </div>
+  <main class="app-main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <script>
+            Swal.fire({
+              title: "{{ category|title }}",
+              text: "{{ message }}",
+              icon: "{{ category }}",
+              confirmButtonText: 'OK!',
+              confirmButtonColor: '#58CC02'
+            });
+          </script>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
+    {% block content %}
+    {% endblock %}
   </main>
 
-
   <script>
-  // Registro correcto del Service Worker (elimina el duplicado)
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register("{{ url_for('static', filename='js/service-worker.js') }}")
-      .then(() => console.log('Service Worker registrado'))
-      .catch(err => console.log('Error al registrar SW:', err));
-  }
-
-  // Oculta el splash screen
-  window.onload = function() {
-    var splash = document.getElementById('splash');
-    if(splash) splash.style.display = 'none';
-  };
-</script>
-
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registrado con éxito:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Error al registrar ServiceWorker:', error);
+          });
+      });
+    }
+  </script>
 </body>
 </html>
 
