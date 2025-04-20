@@ -79,6 +79,10 @@
     display: flex;
     gap: 1.5rem;
   }
+
+  .stat-actions {
+    display: flex;
+  }
   
   .stat-badge {
     display: flex;
@@ -267,7 +271,7 @@
     align-items: center;
     gap: 0.8rem;
     padding: 1.2rem 2rem;
-    background: var(--dashboard-primary);
+    background: #31bb53;
     color: white;
     border: none;
     border-radius: var(--dashboard-border-radius);
@@ -279,7 +283,7 @@
   }
   
   .save-btn:hover {
-    background: var(--dashboard-secondary);
+    background: #269442;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(88, 204, 2, 0.4);
   }
@@ -287,13 +291,13 @@
   /* Add System Button */
   .add-system-btn {
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
+    bottom: 1.4rem;
+    right: 1.5rem;
     background: var(--dashboard-primary);
     color: white;
-    padding: 1.6rem 2rem;
+    padding: 2.6rem 2rem;
     border-radius: 50px;
-    font-size: 1.2rem;
+    font-size: 2rem;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -554,7 +558,12 @@
     .add-system-btn {
       bottom: 1rem;
       right: 1rem;
-      padding: 1rem 1.5rem;
+      padding: 2.5rem 3rem;
+      border-radius: 80px;
+    }
+
+    .fas {
+      font-size: 40px;
     }
   
     .add-system-btn span:last-child {

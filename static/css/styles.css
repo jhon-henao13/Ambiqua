@@ -533,10 +533,10 @@ h2 {
 h3 {
   font-size: 25px;
 }
-
+/* 
 #plant-list {
   padding: 5px 27px;
-}
+} */
 
 /* Contenedores de autenticación */
 .auth-container {
@@ -575,7 +575,7 @@ h3 {
 
 
 .auth-container button {
-  width: 50%;
+  width: 100%;
   margin: 10px;
   padding: 15px;
   border: none;

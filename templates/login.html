@@ -1,39 +1,87 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div id="splash" class="splash-screen">
-  <img style="border-radius: 54px;" src="{{ url_for('static', filename='/images/letraA.png') }}" alt="Ambiqua Logo" class="logo-splash">
-</div>
-
 <div class="auth-container">
-  <h2>Inicia Sesión</h2>
-  <form method="POST" action="{{ url_for('login') }}">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="{{ url_for('static', filename='images/letraA.png') }}" alt="Ambiqua Logo" class="auth-logo">
+            <h1>Bienvenido a Ambiqua</h1>
+            <p>Inicia sesión para gestionar tus cultivos  <i class="fas fa-leaf" id="fa-login"></i></p>
+        </div>
 
-    <!-- Mostrar mensaje de contraseña restablecida -->
+        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    {{ form.identifier(class="form-control", placeholder="Correo electrónico o usuario") }}
+                </div>
+                {% if form.identifier.errors %}
+                <div class="error-message">
+                    {% for error in form.identifier.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
 
+            <div class="form-group">
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    {{ form.password(class="form-control", placeholder="Contraseña") }}
+                    <button type="button" class="toggle-password" id="fa-eye-passw" onclick="togglePassword()">
+                        <i style="opacity: 0;" class="fas fa-eye"></i>
+                    </button>
+                </div>
+                {% if form.password.errors %}
+                <div class="error-message">
+                    {% for error in form.password.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
 
-    <div class="form-group">
-      
-      <input type="text" name="username" placeholder=" Usuario" required>
-      <i class="fas fa-user icon"></i>
+            <div class="form-options">
+                <div class="remember-me">
+                    {{ form.remember(class="form-check-input") }}
+                    {{ form.remember.label(class="form-check-label") }}
+                </div>
+                <a href="{{ url_for('recuperar_contrasena') }}" class="forgot-password">
+                    ¿Olvidaste tu contraseña?
+                </a>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-sign-in-alt"></i>
+                Iniciar Sesión
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            ¿No tienes una cuenta? 
+            <a href="{{ url_for('register') }}">Regístrate aquí</a>
+        </div>
     </div>
-
-    <div class="form-group">
-      
-      <input type="password" name="password" id="password" placeholder="Contraseña" required>
-      <i class="fas fa-lock icon"></i>
-      <i class="toggle-password" id="togglePassword"></i>
-    </div>
-
-    <button type="submit">INGRESAR</button>
-
-    <!-- Enlace para recuperacion de contraseña -->
-    <p class="forgot-password"><a href="/recuperar_contrasena">¿No te acuerdas de tu contraseña?</a></p>
-
-  </form>
-  <p class="p-auth">¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a></p>
 </div>
 
+<script>
+function togglePassword() {
+    const passwordInput = document.querySelector('input[name="password"]');
+    const eyeIcon = document.querySelector('.toggle-password i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    }
+}
+</script>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}

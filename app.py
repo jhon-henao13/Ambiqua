@@ -11,6 +11,9 @@ from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta
 import requests
 import json
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField
+from wtforms.validators import DataRequired, Email, Length
 
 
 # Cargar variables de entorno desde el archivo .env
@@ -19,9 +22,9 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configuración de la clave secreta y la conexión a la base de datos usando variables de entorno
-app.secret_key = os.getenv('SECRET_KEY', 'clave_predeterminada')
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}/{os.getenv('MYSQL_DB')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'clave_predeterminada')  # Asegúrate de que esta clave sea segura en producción
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -109,22 +112,33 @@ def index():
     return redirect(url_for('login'))
 
 
+# Formulario de Login
+class LoginForm(FlaskForm):
+    # email = StringField('Email', validators=[DataRequired(), Email()])
+    identifier = StringField('Correo electrónico o usuario', validators=[DataRequired()])
+    password = PasswordField('Contraseña', validators=[DataRequired()])
+    remember = BooleanField('Recordarme')
+
 # Ruta para el login (mostrar formulario y procesar inicio de sesión)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        # Procesar login
-        username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+    form = LoginForm()
+    if form.validate_on_submit():
+        identifier = form.identifier.data
+        password = form.password.data
+        
+        # Intentar encontrar al usuario por email o nombre de usuario
+        user = User.query.filter((User .email == identifier) | (User .username == identifier)).first()
+
+
         if user and check_password_hash(user.password, password):
-            login_user(user)
+            login_user(user, remember=form.remember.data)
             flash("Inicio de sesión exitoso.", "success")
             return redirect(url_for('dashboard'))
         else:
             flash('Credenciales incorrectas. Intenta nuevamente.', '❌')
-            return redirect(url_for('login'))
-    return render_template('login.html')
+    
+    return render_template('login.html', form=form)
 
 
 # Ruta para el registro

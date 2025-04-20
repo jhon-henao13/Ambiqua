@@ -2,9 +2,9 @@
 
 {% block content %}
 <div class="app-content">
-  <div id="splash" class="splash-screen">
-    <img src="{{ url_for('static', filename='images/letraA.png') }}" alt="Ambiqua Logo" class="logo-splash">
-  </div>
+<div id="splash" class="splash-screen">
+  <img src="{{ url_for('static', filename='images/letraA.png') }}" alt="Ambiqua Logo" class="logo-splash">
+</div>
 
   <section id="dashboard" class="dashboard-container">
     <!-- Sección de Bienvenida -->
@@ -99,7 +99,7 @@
           </button>
         </div>
       </div>
-    </div>
+  </div>
 
     <!-- Botón Flotante para Agregar Sistema -->
     <button class="add-system-btn" id="addSystemBtn">
@@ -108,52 +108,52 @@
     </button>
 
     <!-- Modal para Agregar Sistema -->
-    <div id="systemModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
+  <div id="systemModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
         <h2><i class="fas fa-microchip"></i> Conectar Nuevo Sistema</h2>
-        <form id="systemForm" class="form-grid">
+      <form id="systemForm" class="form-grid">
           <div class="form-row">
-            <div class="form-group">
+        <div class="form-group">
               <label for="systemName">
                 <i class="fas fa-tag"></i>
                 Nombre del Sistema
               </label>
-              <input type="text" id="systemName" placeholder="Ej: Invernadero Principal" required>
-            </div>
-            
-            <div class="form-group">
+          <input type="text" id="systemName" placeholder="Ej: Invernadero Principal" required>
+        </div>
+        
+        <div class="form-group">
               <label for="esp32Id">
                 <i class="fas fa-microchip"></i>
                 ID del ESP32
               </label>
-              <input type="text" id="esp32Id" placeholder="Ej: ESP32-AMB-001" required>
+          <input type="text" id="esp32Id" placeholder="Ej: ESP32-AMB-001" required>
             </div>
-          </div>
-
+        </div>
+        
           <div class="form-row">
-            <div class="form-group">
+        <div class="form-group">
               <label for="ipAddress">
                 <i class="fas fa-network-wired"></i>
                 Dirección IP
               </label>
-              <input type="text" id="ipAddress" placeholder="Ej: 192.168.1.100" required>
-            </div>
-            
-            <div class="form-group">
+          <input type="text" id="ipAddress" placeholder="Ej: 192.168.1.100" required>
+        </div>
+        
+        <div class="form-group">
               <label for="connectionType">
                 <i class="fas fa-wifi"></i>
                 Tipo de Conexión
               </label>
-              <select id="connectionType" required>
-                <option value="" disabled selected>Seleccione tipo</option>
-                <option value="wifi">Wi-Fi 📶</option>
-                <option value="ethernet">Ethernet 🔌</option>
-                <option value="cellular">Celular 📡</option>
-              </select>
-            </div>
-          </div>
-
+          <select id="connectionType" required>
+            <option value="" disabled selected>Seleccione tipo</option>
+            <option value="wifi">Wi-Fi 📶</option>
+            <option value="ethernet">Ethernet 🔌</option>
+            <option value="cellular">Celular 📡</option>
+          </select>
+        </div>
+        </div>
+        
           <div class="form-row">
             <div class="form-group">
               <label for="securityKey">
@@ -164,9 +164,9 @@
                 <input type="password" id="securityKey" placeholder="Ingrese su clave" required>
                 <button type="button" class="toggle-password">
                   <i class="fas fa-eye"></i>
-                </button>
-              </div>
-            </div>
+        </button>
+    </div>
+  </div>
 
             <div class="form-group">
               <label for="sensorCount">
@@ -177,10 +177,10 @@
                 <button type="button" class="number-btn minus">-</button>
                 <input type="number" id="sensorCount" min="1" value="1" required>
                 <button type="button" class="number-btn plus">+</button>
-              </div>
-            </div>
-          </div>
-          
+      </div>
+    </div>
+  </div>
+
           <button type="submit" class="submit-btn">
             <span class="btn-text">Conectar Sistema</span>
             <i class="fas fa-spinner fa-spin btn-loader"></i>
@@ -303,6 +303,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+
+  // Control del rango de humedad
+  const humidityThreshold = document.getElementById('humidityThreshold');
+  const rangeValue = document.querySelector('.range-value');
+
+  humidityThreshold.addEventListener('input', () => {
+    rangeValue.textContent = `${humidityThreshold.value}%`;
+  });
+
+      // Control de la Válvula
+    const toggleValveBtn = document.getElementById('toggleValveBtn');
+    const valveStatus = document.getElementById('valveStatus');
+    let isValveOpen = false; // Cambia esto según el estado real de la válvula
+
+    // Aquí deberías obtener el estado real de la válvula desde tu backend o API
+    // Por ejemplo, supongamos que obtienes el estado de la válvula de una API
+    // isValveOpen = obtenerEstadoDeLaValvula(); // true o false
+
+    // Simulación de estado inicial (puedes cambiar esto según tu lógica)
+    isValveOpen = false; // Cambia a true si la válvula está abierta
+
+    // Actualiza el estado de la válvula en la interfaz
+    valveStatus.textContent = isValveOpen ? 'Abierta' : 'Cerrada';
+    valveStatus.style.color = isValveOpen ? "lime" : "rgb(255, 33, 33)";
+
+    toggleValveBtn.addEventListener('click', () => {
+        isValveOpen = !isValveOpen;
+        valveStatus.textContent = isValveOpen ? 'Abierta' : 'Cerrada';
+        valveStatus.style.color = isValveOpen ? "lime" : 'rgb(255, 33, 33)';
+        toggleValveBtn.classList.toggle('active', isValveOpen);
+        
+        // Animación de pulso al cambiar estado
+        toggleValveBtn.style.animation = 'none';
+        toggleValveBtn.offsetHeight; // Trigger reflow
+        toggleValveBtn.style.animation = 'pulse 0.5s ease-in-out';
+  });
+
 </script>
 
 <style>
@@ -535,11 +573,11 @@ document.addEventListener('DOMContentLoaded', () => {
   .modal-content {
     padding: 1.5rem;
   }
-
+  
   .modal-content h2 {
     font-size: 1.8rem;
   }
-
+  
   .form-group label {
     font-size: 1.1rem;
   }

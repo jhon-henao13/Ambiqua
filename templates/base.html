@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/plants.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#012B1C">
@@ -76,6 +77,21 @@
           });
       });
     }
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          Swal.fire({
+            title: "{{ category|title }}",
+            text: "{{ message }}",
+            icon: "{{ category }}",
+            confirmButtonText: 'OK!',
+            confirmButtonColor: '#58CC02'
+          });
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
   </script>
 </body>
 </html>

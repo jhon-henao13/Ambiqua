@@ -1,31 +1,36 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div id="splash" class="splash-screen">
-  <img style="border-radius: 54px;" src="{{ url_for('static', filename='/images/letraA.png') }}" alt="Ambiqua Logo" class="logo-splash">
-</div>
-
 <div class="auth-container">
-  <h2>Recupera tu cuenta 🔐</h2>
-  <form method="POST" action="{{ url_for('recuperar_contrasena') }}">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="{{ url_for('static', filename='images/letraA.png') }}" alt="Ambiqua Logo" class="auth-logo">
+            <h1>Recupera tu cuenta</h1>
+            <p>Ingresa tu correo electrónico para restablecer tu contraseña</p>
+        </div>
 
-    <!-- Mostrar mensaje de contraseña restablecida -->
+        <form method="POST" action="{{ url_for('recuperar_contrasena') }}" class="auth-form">
+            <div class="form-group">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" name="email" class="form-control" placeholder="Correo Electrónico" required>
+                </div>
+            </div>
 
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-paper-plane"></i>
+                Enviar Instrucciones
+            </button>
+        </form>
 
-    <div class="form-group">
-      <input type="email" name="email" placeholder="Correo Electrónico" required>
-      <i class="fas fa-envelope icon"></i>
+        <div class="auth-footer">
+            <a href="{{ url_for('login') }}">
+                <i class="fas fa-arrow-left"></i>
+                Volver al inicio de sesión
+            </a>
+        </div>
     </div>
-
-
-    <button type="submit">ENVIAR</button>
-
-    <!-- Enlace para recuperacion de contraseña -->
-
-  </form>
-<!--   <p class="p-auth">¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a></p> -->
 </div>
-
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}

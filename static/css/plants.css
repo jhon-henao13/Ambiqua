@@ -40,7 +40,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
   padding: 2rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: var(--border-radius);
@@ -82,12 +82,12 @@
 /* Botón Flotante de Agregar */
 .btn-add {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  bottom: 1.4rem;
+  right: 1.5rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1.5rem 2.5rem;
+  padding: 2.3rem 2rem;
   background: var(--gradient-primary);
   color: white;
   border: none;
@@ -98,7 +98,7 @@
   box-shadow: var(--shadow-lg);
   z-index: 100;
   animation: float 3s ease-in-out infinite;
-  font-size: 1.2rem;
+  font-size: 2rem;
 }
 
 .btn-add:hover {
@@ -156,7 +156,7 @@
 
 .plant-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: flex-start;
   margin-bottom: 2rem;
 }
@@ -168,7 +168,7 @@
 }
 
 .plant-name {
-  font-size: 1.8rem;
+  font-size: 2rem;
   color: var(--text-light);
   margin: 0;
   font-weight: 600;
@@ -183,6 +183,7 @@
   background: rgba(88, 204, 2, 0.1);
   padding: 0.8rem 1.2rem;
   border-radius: 20px;
+  margin: 0 80px 0 0;
 }
 
 .plant-status i {
@@ -192,6 +193,7 @@
 .plant-actions {
   display: flex;
   gap: 1rem;
+  margin: 0 0 0 10px;
 }
 
 .action-btn {
@@ -205,17 +207,25 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-.action-btn:hover {
+.edit-btn:hover {
   background: var(--primary-color);
-  transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(88, 204, 2, 0.3);
+}
+
+.delete-btn:hover {
+  background: rgb(255, 33, 33);
+  box-shadow: 0 4px 12px rgba(170, 16, 16, 0.534);
+}
+
+.action-btn:hover {
+  transform: translateY(2px);
 }
 
 /* Métricas */
 .plant-metrics {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  
+  gap: 1rem;
   margin-bottom: 2rem;
 }
 
@@ -592,6 +602,14 @@
 }
 
 /* Responsive */
+@media (max-width: 800px) {
+  .plant-header {
+    justify-content: space-between;
+  }
+  
+}
+
+
 @media (max-width: 768px) {
   .cultivos-main {
     padding: 1.5rem;
@@ -603,6 +621,7 @@
     text-align: center;
     padding: 2rem;
   }
+
 
   .cultivos-title {
     font-size: 2.5rem;

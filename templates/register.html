@@ -2,49 +2,92 @@
 
 {% block content %}
 <div class="auth-container">
-  <h2>Regístrate</h2>
-  <form method="POST" action="{{ url_for('register') }}">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="{{ url_for('static', filename='images/letraA.png') }}" alt="Ambiqua Logo" class="auth-logo">
+            <h1>Únete a Ambiqua</h1>
+            <p>Crea tu cuenta para comenzar a gestionar tus cultivos</p>
+        </div>
 
-    <div class="form-group">
-      <input type="text" name="username" placeholder=" Usuario" required>
-      <i class="fas fa-user icon"></i>
+        <form method="POST" action="{{ url_for('register') }}" class="auth-form">
+            <div class="form-group">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" name="username" class="form-control" placeholder="Usuario" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" name="email" class="form-control" placeholder="Correo Electrónico" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Contraseña" required>
+                    <button type="button" class="toggle-password" id="fa-eye-passw" onclick="togglePassword('password')">
+                        <i style="opacity: 0;" class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Confirmar Contraseña" required>
+                    <button type="button" class="toggle-password" id="fa-eye-passw" onclick="togglePassword('confirm_password')">
+                        <i style="opacity: 0;" class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-user-plus"></i>
+                Crear Cuenta
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            ¿Ya tienes una cuenta? 
+            <a href="{{ url_for('login') }}">Inicia Sesión</a>
+        </div>
     </div>
-
-    <div class="form-group">
-      <input type="email" name="email" placeholder="Correo Electrónico" required>
-      <i class="fas fa-envelope icon"></i>
-    </div>
-
-    <div class="form-group">
-      <input type="password" name="password" id="password" placeholder="Contraseña" required>
-      <i class="fas fa-lock icon"></i>
-      <i class="toggle-password" id="togglePassword"></i>
-    </div>
-
-    <div class="form-group">
-      <input type="password" name="confirm_password" id="password" placeholder="Confirmar Contraseña" required>
-      <i class="fas fa-lock icon"></i>
-      <i class="toggle-password" id="togglePassword"></i>
-    </div>
-
-    <button type="submit">REGISTRAR</button>
-
-  </form>
-  <p class="p-auth">¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia Sesión</a></p>
-  {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <script>
-                {% for category, message in messages %}
-                    Swal.fire({
-                        title: "{{ category.title() }}!",
-                        text: "{{ message }}",
-                        icon: "{{ category }}",
-                        confirmButtonText: 'Está bien.',
-                      confirmButtonColor: '#00512D'
-                    });
-                {% endfor %}
-            </script>
-        {% endif %}
-    {% endwith %}
 </div>
+
+<script>
+function togglePassword(inputId) {
+    const passwordInput = document.getElementById(inputId);
+    const eyeIcon = passwordInput.nextElementSibling.querySelector('i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    }
+}
+</script>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <script>
+            {% for category, message in messages %}
+                Swal.fire({
+                    title: "{{ category.title() }}!",
+                    text: "{{ message }}",
+                    icon: "{{ category }}",
+                    confirmButtonText: 'Está bien.',
+                    confirmButtonColor: '#00512D'
+                });
+            {% endfor %}
+        </script>
+    {% endif %}
+{% endwith %}
+
 {% endblock %}
