@@ -15,11 +15,19 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Email, Length
 
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+from flask_dance.contrib.google import make_google_blueprint, google
+import pathlib
+import collection
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
 app = Flask(__name__)
+
 
 # Configuración de la clave secreta y la conexión a la base de datos usando variables de entorno
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}/{os.getenv('MYSQL_DB')}"
@@ -83,27 +91,96 @@ def load_user(user_id):
 
 # Configuracion de SendGrid
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+PASSWORD_OF_APP = os.getenv('PASSWORD_OF_APP')
 
 # Serializador para crear y verificar tokens
 serializer = Serializer(app.secret_key, salt='password-reset-salt')
 
-# Funcion para enviar correos
+# Configuracion de Google OAuth
+# Configurar el blueprint correctamente
+google_bp = make_google_blueprint(
+    client_id=os.getenv('CLIENT_ID'),
+    client_secret=os.getenv('CLIENT_SECRET'),
+    redirect_to='google_login_callback',
+    scope=[
+        "openid",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email"
+    ]   # Google ahora requiere estos valores exactos
+)
+
+app.register_blueprint(google_bp, url_prefix="/google_login") # <-- Flask-Dance usa "/google_login/google/authorized"
+
+@app.route('/login_google')
+def login_google():
+    # Redirige a Google para la autentificacion
+    return redirect(url_for('google.login'))
+
+@app.route('/google_login/callback')
+def google_login_callback():
+    # Si el usuario ya esta autenticado, redirigiendo a la pagina principal
+    if 'usuario' in session:
+        return redirect(url_for('dashboard'))
+    
+    if not google.authorized:
+        return redirect(url_for('google.login'))
+    
+    resp = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
+
+    if not resp.ok:
+        flask("Error al obtener información de Google. Intenta nuevamente.", "error")
+        return redirect(url_for('login'))
+    
+    user_info = resp.json()
+
+    # Imprimir la respuesta para depuracion
+    print("Respuesta de Google", user_info)
+
+    # Verificar que Google haya enviado un email
+    if 'email' not in user_info:
+        flash("Error: Google no proporcionó un email.", "error")
+        return redirect(url_for('login'))
+    
+    # Obtener el ID unico de Google
+    google_id = user_info.get("sub")
+
+    # Verificar si el usuario ya esta registrado
+    user = collection.find_one({'email': user_info['email']})
+    if not user:
+        # Registrar nuevo usuario con Google
+        collection.insert_one({
+            'usuario': user_info.get('name', 'Usuario sin nombre'),
+            'email': user_info['email'],
+            'google_id': google_id # Guardamos el ID único de Google
+        })
+
+    # Iniciar sesion guardando el nombre en la sesion
+    session['usuario'] = user_info.get('name', 'Usuario sin nombre')
+
+    return redirect(url_for('dashboard'))
+
+
+# Función para enviar correos
 def enviar_email(destinatario, asunto, cuerpo):
-    mensaje = Mail(
-        from_email='estiguar.dev.emails@gmail.com', # Cambiar por el correo nuevo exclusivo para enviar emails de recuperacion
-        to_emails=destinatario,
-        subject=asunto,
-        html_content=cuerpo
-    )
+    remitente = 'estiguar.dev.emails@gmail.com'  # Cambia esto por tu correo de Gmail
+    contraseña = (PASSWORD_OF_APP)  # Cambia esto por tu contraseña de Gmail o contraseña de aplicación
+
+    # Crear el mensaje
+    mensaje = MIMEMultipart()
+    mensaje['From'] = remitente
+    mensaje['To'] = destinatario
+    mensaje['Subject'] = asunto
+    mensaje.attach(MIMEText(cuerpo, 'html'))  # Asegúrate de que el cuerpo sea HTML
+
     try:
-        sg = SendGridAPIClient(SENDGRID_API_KEY) # Usar clave API de SendGrid directamente
-        response = sg.send(mensaje)
-        print(f"Correo enviado con éxito! Status code: {response.status_code}")
+        # Conectar al servidor SMTP de Gmail
+        with smtplib.SMTP('smtp.gmail.com', 587) as servidor:
+            servidor.starttls()  # Iniciar la conexión segura
+            servidor.login(remitente, contraseña)  # Iniciar sesión
+            servidor.send_message(mensaje)  # Enviar el mensaje
+            print(f"Correo enviado a {destinatario} con éxito.")
     except Exception as e:
         print(f'Error al enviar el correo: {e}')
-
-
-
 # Redirigir la raiz a login o dashboard según autenticación
 @app.route('/')
 def index():
@@ -130,8 +207,7 @@ def login():
         # Intentar encontrar al usuario por email o nombre de usuario
         user = User.query.filter((User .email == identifier) | (User .username == identifier)).first()
 
-
-        if user and check_password_hash(user.password, password):
+        if user and bcrypt.check_password_hash(user.password, password):  # Cambia esto
             login_user(user, remember=form.remember.data)
             flash("Inicio de sesión exitoso.", "success")
             return redirect(url_for('dashboard'))
@@ -158,13 +234,16 @@ def register():
             flash('El nombre de usuario o email ya existe.', '❌')
             return redirect(url_for('register'))
 
-        new_user = User(username=username, email=email, password=generate_password_hash(password))
+        # Hashear la contraseña usando flask_bcrypt
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        new_user = User(username=username, email=email, password=hashed_password)
 
         db.session.add(new_user)
         db.session.commit()
         flash('Registro exitoso. Inicia sesión.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html')
+
 
 # Ruta protegida: Dashboard (panel principal)
 @app.route('/dashboard')
@@ -181,24 +260,133 @@ def cultivos():
     return render_template('cultivos.html', user=current_user, plants=plants)
 
 
+
 # Ruta para ingresar el correo para recuperar contraseña
 @app.route('/recuperar_contrasena', methods=['GET', 'POST'])
 def recuperar_contrasena():
     if request.method == 'POST':
         email = request.form['email']
-        usuario = collection.find_one({'email': email})
+        usuario = User.query.filter_by(email=email).first()
 
         if usuario:
+            # Crear un token para el restablecimiento de contraseña
             token = serializer.dumps(email, salt='password-reset-salt')
             enlace = url_for('restablecer_contrasena', token=token, _external=True)
             asunto = 'RECUPERACIÓN DE CONTRASEÑA EN AMBIQUA 🌱'
+
+            # Cargar logo en el mensaje del cuerpo del email de recuperacion de contraseña
+            logo_url = url_for('static', filename='images/logo.jpg', _external=True)
+
             cuerpo = f"""
-            <p>Hola!, hemos recibido una solicitud para cambiar tu contraseña.</p>
-            <p>Si no has solicitado nada, entonces puedes ignorar este mensaje.</p>
-            <p>Para cambiar tu contraseña, haz clic en el siguiente link:</p>
-            <a href="{enlace}">Cambiar contraseña</a>
+            <html>
+            <head>
+                <style>
+                    body {{
+                        font-family: 'Arial', sans-serif;
+                        background-color: #f4f4f4;
+                        margin: 0;
+                        padding: 20px;
+                    }}
+                    .container {{
+                        max-width: 600px;
+                        margin: auto;
+                        background-color: #ffffff;
+                        padding: 30px;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                        text-align: center; /* Centrar el contenido */
+                    }}
+
+                    #title {{
+                        color: #4CAF50; /* Color verde similar a Duolingo */
+                        font-weight: 900;
+                        font-size: 35px;
+                        margin-bottom: 10px;
+                        background: none; /* Sin fondo */
+                    }}
+                    p {{
+                        color: #555;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        margin: 10px 0; /* Espaciado entre párrafos */
+                    }}
+
+                    a {{
+                        display: inline-block;
+                        margin-top: 20px;
+                        padding-bottom: 17px;
+                        background-color: none; /* Color verde */
+                        text-decoration: none;
+                        border-radius: 7px;
+                        font-size: 35px;
+                        transition: background-color 0.3s, transform 0.3s;
+                        color: #58cc02 !important;
+                        font-weight: 900 !important;
+                    }}
+
+                    .cambiar-pass {{
+                        display: inline-block;
+                        margin-top: 20px;
+                        padding: 12px 20px;
+                        background-color: #4CAF50; /* Color verde */
+                        text-decoration: none;
+                        border-radius: 7px;
+                        font-size: 18px;
+                        transition: background-color 0.3s, transform 0.3s;
+                        color: white !important;
+                        font-weight: 900 !important;
+                    }}
+
+                    .cambiar-pass:hover {{
+                        background-color: #45a049; /* Color verde más oscuro */
+                        transform: translateY(-2px);
+                    }}
+                    .footer {{
+                        margin-top: 30px;
+                        font-size: 12px;
+                        color: #aaa;
+                    }}
+                    img {{
+                        width: 120px;
+                        height: auto;
+                        border-radius: 20px;
+                        margin-bottom: 20px;
+                    }}
+
+                    strong {{
+                        font-weight: 900;
+                    }}
+
+                    @media (max-width: 600px) {{
+                        .container {{
+                            padding: 15px;
+                        }}
+                        .title {{
+                            font-size: 20px;
+                        }}
+                        a {{
+                            font-size: 16px;
+                        }}
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <img src="{logo_url}" alt="Ambiqua Logo">
+                    <h2 id="title">Hola {usuario.username}!</h2>
+                    <p>Hemos recibido una solicitud para cambiar tu contraseña.</p>
+                    <p>Si no has solicitado nada, puedes ignorar este mensaje.</p>
+                    <p>Para cambiar tu contraseña, haz clic en el siguiente enlace:</p>
+                    <a class="cambiar-pass" href="{enlace}">Cambiar contraseña</a>
+                    <div class="footer">
+                        <p>Gracias por usar <strong>Ambiqua.</strong></p>
+                    </div>
+                </div>
+            </body>
+            </html>
             """
 
+            # Enviar el correo
             enviar_email(email, asunto, cuerpo)
             flash('Correo enviado para que cambies tu contraseña.', 'success')
         else:
@@ -218,14 +406,23 @@ def restablecer_contrasena(token):
 
     if request.method == 'POST':
         nueva_contrasena = request.form['nueva_contrasena']
+        
+        if not nueva_contrasena:
+            flash('La nueva contraseña no puede estar vacía.', 'error')
+            return redirect(url_for('restablecer_contrasena', token=token))
+
         hashed_password = bcrypt.generate_password_hash(nueva_contrasena).decode('utf-8')
-        collection.update_one({'email': email}, {'$set': {'contrasena': hashed_password}})
-        flash('Cambiastes tu contraseña con éxito.', 'success')
-        return redirect(url_for('login'))
+        
+        usuario = User.query.filter_by(email=email).first()
+        if usuario:
+            usuario.password = hashed_password
+            db.session.commit()  # Guarda el nuevo hash de la contraseña en la base de datos
+            flash('Cambiastes tu contraseña con éxito.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('No se encontró el usuario.', 'error')
 
-    return render_template('restablecer_contrasena.html')
-
-
+    return render_template('restablecer_contrasena.html', token=token)
 
 # Ruta de logout
 @app.route('/logout')
@@ -314,4 +511,4 @@ def delete_plant(plant_id):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

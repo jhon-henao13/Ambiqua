@@ -48,6 +48,14 @@
                 <i class="fas fa-user-plus"></i>
                 Crear Cuenta
             </button>
+
+            <!-- Boton para registrarse con Google -->
+             <a href="{{ url_for('google.login') }}">
+                <button type="button" class="btn-google" style="padding: 7px;">
+                    <img src="{{ url_for('static', filename='images/google.png') }}" alt="Google logo" class="google-logo">
+                    REGISTRARSE CON GOOGLE
+                </button>
+             </a>
         </form>
 
         <div class="auth-footer">

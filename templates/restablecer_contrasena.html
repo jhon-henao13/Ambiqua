@@ -7,7 +7,7 @@
 
 <div class="auth-container">
   <h2>Cambia tu contraseña 🔐</h2>
-  <form method="POST" action="{{ url_for('recuperar_contrasena') }}">
+  <form method="POST" action="{{ url_for('restablecer_contrasena', token=token) }}">
 
     <!-- Mostrar mensaje de contraseña restablecida -->
 
@@ -24,7 +24,7 @@
     <!-- Enlace para recuperacion de contraseña -->
 
   </form>
-    <p class="p-auth"><a href="{{ url_for('login') }}">Volver al inicio de sesión </a></p>
+    <p class="p-auth"><a href="{{ url_for('login') }}"><i class="fas fa-arrow-left"></i> Volver al inicio de sesión </a></p>
 </div>
 
 <script>
