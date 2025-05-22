@@ -494,39 +494,46 @@ document.addEventListener('DOMContentLoaded', () => {
     loader.style.display = 'inline-block';
     
     try {
-      const formData = {
-        name: document.getElementById('plantName').value,
-        valve_name: document.getElementById('valveName').value,
-        sensor_count: document.getElementById('sensors').value,
-        plant_count: document.getElementById('plants').value,
-        sensor_type: document.getElementById('sensorType').value,
-        humidity_threshold: document.getElementById('humidityThreshold').value
-      };
+        const formData = {
+            name: document.getElementById('plantName').value,
+            humidityRequired: parseInt(document.getElementById('humidityThreshold').value),
+            description: document.getElementById('plantName').value + ' - Cultivo agregado el ' + new Date().toLocaleDateString(),
+            systemId: null // Por ahora no asociamos a ningún sistema
+        };
 
-      const response = await fetch('/api/plants', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      if (response.ok) {
-        closeModal();
-        location.reload();
-      } else {
-        throw new Error('Error al guardar el cultivo');
-      }
+        const response = await fetch('/api/plants', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            Swal.fire({
+                title: '¡Éxito!',
+                text: 'Cultivo agregado correctamente',
+                icon: 'success',
+                confirmButtonColor: '#58CC02'
+            }).then(() => {
+                closeModal();
+                location.reload();
+            });
+        } else {
+            throw new Error(data.error || 'Error al guardar el cultivo');
+        }
     } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: error.message,
-        icon: 'error',
-        confirmButtonColor: '#58CC02'
-      });
+        Swal.fire({
+            title: 'Error',
+            text: error.message,
+            icon: 'error',
+            confirmButtonColor: '#58CC02'
+        });
     } finally {
-      submitBtn.disabled = false;
-      loader.style.display = 'none';
+        submitBtn.disabled = false;
+        loader.style.display = 'none';
     }
   });
 

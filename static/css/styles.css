@@ -283,7 +283,7 @@ body {
 
 .form-group input {
     width: 100%;
-    padding: 1.5rem 3rem !important;
+    padding: 0.9rem 1rem !important;
     border: 2px solid rgba(0, 0, 0, 0.3); /* Contorno tenue */
     border-radius: 10px;
     color: #000; /* Texto negro */

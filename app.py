@@ -56,9 +56,12 @@ class Plant(db.Model):
     __tablename__ = 'plants'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    system_id = db.Column(db.Integer, db.ForeignKey('systems.id'), nullable=True)
     name = db.Column(db.String(100), nullable=False)
-    humidity_required = db.Column(db.Integer, nullable=True)  # Cambiado a humidity_required
-    last_watered = db.Column(db.DateTime, nullable=True)  # Cambiado a last_watered
+    description = db.Column(db.Text, nullable=True)
+    humidity_required = db.Column(db.Integer, nullable=True)
+    status = db.Column(db.String(20), default='active')
+    last_watered = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     sensor_data = db.relationship('SensorData', backref='plant', lazy=True)
 
@@ -67,13 +70,15 @@ class System(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
     esp32_id = db.Column(db.String(50), unique=True, nullable=False)
     ip_address = db.Column(db.String(15), nullable=False)
     connection_type = db.Column(db.String(20), nullable=False)
     security_key = db.Column(db.String(255), nullable=False)
+    status = db.Column(db.String(20), default='active')
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     last_connection = db.Column(db.DateTime, nullable=True)
-    status = db.Column(db.String(20), default='active')
+    plants = db.relationship('Plant', backref='system', lazy=True)
 
 class SensorData(db.Model):
     __tablename__ = 'sensor_data'
@@ -464,31 +469,102 @@ def logout():
 @app.route('/api/systems', methods=['POST'])
 @login_required
 def add_system():
-    data = request.get_json()
-    new_system = System(
-        user_id=current_user.id,
-        name=data['name'],
-        esp32_id=data['esp32Id'],
-        ip_address=data['ipAddress'],
-        connection_type=data['connectionType'],
-        security_key=generate_password_hash(data['securityKey'])
-    )
-    db.session.add(new_system)
-    db.session.commit()
-    return jsonify({"success": True, "system": {"id": new_system.id, "name": new_system.name}})
+    try:
+        data = request.get_json()
+        
+        # Validar datos requeridos
+        required_fields = ['name', 'esp32Id', 'ipAddress', 'connectionType', 'securityKey']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    "success": False, 
+                    "error": f"Campo requerido: {field}"
+                }), 400
+
+        # Verificar si el ESP32 ID ya existe
+        existing_system = System.query.filter_by(esp32_id=data['esp32Id']).first()
+        if existing_system:
+            return jsonify({
+                "success": False,
+                "error": "Ya existe un sistema con este ID de ESP32"
+            }), 400
+
+        # Crear nuevo sistema
+        new_system = System(
+            user_id=current_user.id,
+            name=data['name'],
+            esp32_id=data['esp32Id'],
+            ip_address=data['ipAddress'],
+            connection_type=data['connectionType'],
+            security_key=bcrypt.generate_password_hash(data['securityKey']).decode('utf-8'),
+            description=data.get('description', ''),
+            status='active'
+        )
+
+        db.session.add(new_system)
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "system": {
+                "id": new_system.id,
+                "name": new_system.name,
+                "esp32_id": new_system.esp32_id,
+                "created_at": new_system.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 @app.route('/api/plants', methods=['POST'])
 @login_required
 def add_plant():
-    data = request.get_json()
-    new_plant = Plant(
-        user_id=current_user.id,
-        name=data['name'],
-        humidity_required=data['humidityRequired']
-    )
-    db.session.add(new_plant)
-    db.session.commit()
-    return jsonify({"success": True, "plant": {"id": new_plant.id, "name": new_plant.name}})
+    try:
+        data = request.get_json()
+        
+        # Validar datos requeridos
+        required_fields = ['name', 'humidityRequired']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    "success": False, 
+                    "error": f"Campo requerido: {field}"
+                }), 400
+
+        # Crear nuevo cultivo
+        new_plant = Plant(
+            user_id=current_user.id,
+            name=data['name'],
+            humidity_required=data['humidityRequired'],
+            description=data.get('description', ''),
+            status='active',
+            system_id=data.get('systemId')  # Opcional
+        )
+
+        db.session.add(new_plant)
+        db.session.commit()
+
+        return jsonify({
+            "success": True, 
+            "plant": {
+                "id": new_plant.id,
+                "name": new_plant.name,
+                "humidity_required": new_plant.humidity_required,
+                "created_at": new_plant.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 @app.route('/api/sensor-data', methods=['POST'])
 @login_required
