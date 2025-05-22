@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="profile-container">
+  <h1>Perfil de {{ user.username }}</h1>
+  
+  <div class="profile-info">
+    <p>
+      <i class="fas fa-user"></i>
+      <strong>Usuario:</strong> {{ user.username }}
+    </p>
+    <p>
+      <i class="fas fa-envelope"></i>
+      <strong>Email:</strong> {{ user.email }}
+    </p>
+    <p>
+      <i class="fas fa-calendar-alt"></i>
+      <strong>Fecha de Registro:</strong> {{ user.created_at.strftime('%d/%m/%Y') }}
+    </p>
+    <p>
+      <i class="fas fa-leaf"></i>
+      <strong>Cultivos Activos:</strong> {{ user.plants|length }}
+    </p>
+    <p>
+      <i class="fas fa-microchip"></i>
+      <strong>Sistemas Conectados:</strong> {{ user.systems|length }}
+    </p>
+  </div>
+
+  <div class="profile-actions">
+    <a href="{{ url_for('settings') }}" class="btn">
+      <i class="fas fa-cog"></i>
+      Editar Configuraciones
+    </a>
+  </div>
+</div>
+{% endblock %}

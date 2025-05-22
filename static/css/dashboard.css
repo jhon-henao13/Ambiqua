@@ -14,7 +14,7 @@
   
   /* Layout Principal */
   .app-content {
-    min-height: 100vh;
+    min-height: 150vh;
     background: var(--dashboard-bg);
     color: var(--dashboard-text);
     padding-top: 80px;
@@ -563,7 +563,19 @@
     }
 
     .fas {
-      font-size: 40px;
+      font-size: 17px;
+    }
+
+    .auth-container button, .btn-google {
+      padding: 20px !important;
+    }
+
+    .auth-footer {
+      font-size: 1.4rem;
+    }
+
+    .auth-footer a {
+      padding-left: 7px;
     }
   
     .add-system-btn span:last-child {
@@ -598,7 +610,7 @@
   
   @media (max-width: 480px) {
     .modal-content {
-      padding: 1.5rem;
+      padding: 0.5rem !important;
     }
   
     .modal-content h2 {
@@ -623,3 +635,38 @@
       font-size: 1.5rem;
     }
   }
+
+@media (max-width: 450px) {
+  .search-input {
+    font-size: 0.9rem;
+  }
+}
+
+
+@media (max-width: 580px) {
+  .form-row {
+    gap: 0.5rem;
+  }
+
+  .form-group input {
+    padding: 10px 20px !important;
+  }
+
+  .modal-content h2 {
+    font-size: 1.5rem !important;
+    margin: 0 0 1.5rem;
+    gap: 0.4rem;
+  }
+
+  .fa-microchip {
+    font-size: 30px;
+  }
+
+  .close {
+    top: 1.3rem;
+    right: 2rem;
+    font-size: 2.5rem;
+    margin: 0 0 0 5px;
+  }
+  
+}

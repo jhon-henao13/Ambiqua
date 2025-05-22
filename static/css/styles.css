@@ -480,6 +480,7 @@ label {
   padding: 8px 12px;
   border-radius: 20px;
   transition: all 0.3s ease;
+  text-shadow: 1px 2px 12px lime;
 }
 
 .nav-menu li a:hover {
@@ -489,7 +490,7 @@ label {
 
 @media (max-width: 768px) {
   .navbar {
-    flex-direction: column;
+    flex-direction: row;
     gap: 15px;
     padding: 15px;
   }

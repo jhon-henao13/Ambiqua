@@ -188,6 +188,33 @@ def index():
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
 
+# Perfil del usuario
+@app.route('/profile')
+@login_required
+def profile():
+    # Lógica para mostrar el perfil del usuario
+    return render_template('profile.html', user=current_user)
+
+# Configuraciones de la aplicacione
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        # Actualizar el email del usuario
+        current_user.email = email
+
+        # Si se proporciona una nueva contraseña, actualizarla
+        if password:
+            current_user.set_password(password)  # Asegúrate de tener un método para establecer la contraseña
+
+        db.session.commit()  # Guardar cambios en la base de datos
+        flash('Configuraciones actualizadas con éxito.', 'success')
+        return redirect(url_for('settings'))
+
+    return render_template('settings.html', user=current_user)  # Asegúrate de pasar current_user
 
 # Formulario de Login
 class LoginForm(FlaskForm):

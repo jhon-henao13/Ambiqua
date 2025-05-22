@@ -35,10 +35,25 @@
           </button>
         </div>
       </div>
-      <ul class="nav-menu">
+      <div class="nav-toggle" id="nav-toggle">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </div>
+      <ul class="nav-menu" id="nav-menu">
         <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Inicio</a></li>
         <li><a href="{{ url_for('cultivos') }}"><i class="fas fa-leaf"></i> Cultivos</a></li>
-        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Salir</a></li>
+        <li class="dropdown desktop-only">
+          <a href="#" class="dropbtn"><i class="fas fa-user"></i> Mi Cuenta</a>
+          <div class="dropdown-content">
+            <a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> Perfil</a>
+            <a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> Configuración</a>
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Salir</a>
+          </div>
+        </li>
+        <li class="mobile-only"><a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> Perfil</a></li>
+        <li class="mobile-only"><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> Configuración</a></li>
+        <li class="mobile-only"><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Salir</a></li>
       </ul>
     </nav>
   </header>
@@ -78,20 +93,52 @@
       });
     }
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          Swal.fire({
-            title: "{{ category|title }}",
-            text: "{{ message }}",
-            icon: "{{ category }}",
-            confirmButtonText: 'OK!',
-            confirmButtonColor: '#58CC02'
-          });
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-    
+    document.addEventListener('DOMContentLoaded', function() {
+      const navToggle = document.getElementById('nav-toggle');
+      const navMenu = document.getElementById('nav-menu');
+      const dropdown = document.querySelector('.dropdown');
+      const dropdownContent = document.querySelector('.dropdown-content');
+
+      // Función para manejar el menú móvil
+      function toggleMobileMenu() {
+        navMenu.classList.toggle('active');
+        navToggle.classList.toggle('active');
+        
+        // Si el menú está activo, ocultar el dropdown
+        if (navMenu.classList.contains('active')) {
+          dropdownContent.style.display = 'none';
+        }
+      }
+
+      // Evento para el botón de menú
+      navToggle.addEventListener('click', toggleMobileMenu);
+
+      // Evento para el dropdown
+      dropdown.addEventListener('click', function(e) {
+        if (window.innerWidth > 900) {
+          e.preventDefault();
+          dropdownContent.style.display = 
+            dropdownContent.style.display === 'block' ? 'none' : 'block';
+        }
+      });
+
+      // Cerrar menús al hacer clic fuera
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.navbar')) {
+          navMenu.classList.remove('active');
+          navToggle.classList.remove('active');
+          dropdownContent.style.display = 'none';
+        }
+      });
+
+      // Manejar cambios de tamaño de ventana
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 900) {
+          navMenu.classList.remove('active');
+          navToggle.classList.remove('active');
+        }
+      });
+    });
   </script>
 </body>
 </html>
